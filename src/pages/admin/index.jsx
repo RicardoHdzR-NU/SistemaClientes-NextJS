@@ -1,0 +1,78 @@
+import { useState, useEffect } from "react"
+import { Form, Button, Card, Row, Container } from 'react-bootstrap'
+import { useRouter } from "next/router";
+import axios from 'axios'
+import {signIn, useSession} from 'next-auth/react'
+
+
+export default function LogInAdmin(){
+    const router = useRouter();
+    //const {data: session} = useSession()
+    
+    const returnHome = async () => {
+        router.push('/')
+    }
+    
+    //Hooks para capturar los datos de inicio de sesión
+    const [name, setName] = useState("");
+    const [password, setPassword] = useState("")
+    //Hooks para capturar la información que regresa el request a la BD
+    const [admin, setAdmin] = useState({})
+    const [error, setError] = useState(false)
+    
+    //Hook que se ejecuta 1 vez al entrar a la página y cada que el objeto "user" cambie
+    useEffect(() =>{
+        
+        if(admin.admin_id){
+            console.log('hay un admin: ', admin)
+            //sessionHandler();
+            router.push(`admin/home/${admin.admin_id}`)
+        }
+    },[admin])
+
+    //Función para manejar log in local (no Google)
+    const handleLogIn = async () => {
+        const userDetails = {
+            email: name,
+            password: password,}
+        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/admin/logIn`,{
+            body: userDetails,
+        })
+
+        console.log(result.data)
+        //definimos el error y el usuario
+        const err = result.data.error
+        const userData = result.data.user
+        setError(err);
+        setAdmin(userData);
+    }
+
+    
+    return(
+        <Container>
+            <Card className='justify-content-center d-flex'>
+                <Card.Body>
+                <Card.Title>Sistema de Administradores</Card.Title>
+                    <Form>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Correo Electrónico</Form.Label>
+                            <Form.Control type='email' placeholder='admin@ejemplo.com' value={name} onChange={(e) => setName(e.target.value)} />
+                        </Form.Group>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Contraseña</Form.Label>
+                            <Form.Control type='password' value={password} onChange={(e) => setPassword(e.target.value)} />
+                            {error && <Form.Text style={{color: 'red'}}>No existe un usuario con su nombre y contraseña</Form.Text>}
+                        </Form.Group>
+                        
+                        <Row className='mb-3'>
+                            <Button variant='primary'  onClick={handleLogIn}>Iniciar Sesión</Button>
+                        </Row>
+                        <Row className='mb-3'>
+                            <Button variant='info' onClick={returnHome}>Regresar</Button>
+                        </Row>
+                    </Form>
+                </Card.Body>
+            </Card>
+        </Container>
+    )
+}
