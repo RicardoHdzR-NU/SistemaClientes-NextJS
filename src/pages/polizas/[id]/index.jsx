@@ -13,6 +13,7 @@ export default function index() {
   const [usuario, setUsuario] = useState({})
   const [session, setSession] = useState({
     data: {
+      type: 'user',
       user_id: null
     }
   })
@@ -23,19 +24,26 @@ export default function index() {
   //console.log(process.env.API_URL)
 
   const sessionHandler = async () => {
-    /*const url = process.env.API_URL + '/session';
-    console.log(url)*/
+        
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+
     //console.log('session: ', session.data)
     if(session.data !== null){
-      //console.log('sesión existente: ', session.data)
-      //router.push(`/user/${session.data.id}`)
-      setSession(session)
+        //console.log('sesión existente: ', session.data)
+        if(session.data.type != 'user'){
+            //console.log('el tipo de sesion es distinta, redirigiendo')
+            router.push('/')
+        }else{
+            setSession(session)
+        }
+        //router.push(`/user/${session.data.id}`)
+        
     }
     else{
-      //console.log('no hay sesión')
-      router.push('/')
+        //console.log('no hay sesión')
+        router.push('/')
     }
+    
   }
 
   const fetchPolizas = async () =>{
@@ -62,6 +70,12 @@ export default function index() {
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)  
     //console.log('usuario: ', result.data.user)
     setUsuario(result.data.user)
+  }
+
+  if (session.data.user_id != null && usuario.user_id ){
+    if(session.data.user_id != usuario.admin_id){
+      router.push('/')
+    }
   }
 
   useEffect(() =>{

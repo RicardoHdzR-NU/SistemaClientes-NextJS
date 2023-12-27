@@ -7,7 +7,7 @@ export default function index (req, res){
 
     switch(method){
         case 'POST':
-            console.log(req.body)
+            //console.log(req.body)
             const email = req.body.body.email
             //console.log(process.env.SECRET)
             const password = req.body.body.password

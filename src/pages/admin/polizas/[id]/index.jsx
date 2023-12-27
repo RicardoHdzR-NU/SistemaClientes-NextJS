@@ -13,26 +13,34 @@ export default function index() {
   const [admin, setAdmin] = useState({})
   const [session, setSession] = useState({
     data: {
-      user_id: null
+      type: 'admin',
+      admin_id: null
     }
   })
 
   //console.log(process.env.API_URL)
 
   const sessionHandler = async () => {
-    /*const url = process.env.API_URL + '/session';
-    console.log(url)*/
+        
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+
     //console.log('session: ', session.data)
     if(session.data !== null){
-      console.log('sesión existente: ', session.data)
-      //router.push(`/user/${session.data.id}`)
-      setSession(session)
+        //console.log('sesión existente: ', session.data)
+        if(session.data.type != 'admin'){
+            //console.log('el tipo de sesion es distinta, redirigiendo')
+            router.push('/')
+        }else{
+            setSession(session)
+        }
+        //router.push(`/user/${session.data.id}`)
+        
     }
     else{
-      //console.log('no hay sesión')
-      router.push('/')
+        //console.log('no hay sesión')
+        router.push('/')
     }
+    
   }
 
   const fetchPolizas = async () =>{
@@ -61,15 +69,15 @@ export default function index() {
     setAdmin(result.data.admin)
   }
 
-  if (session.data.user_id != null && admin.admin_id ){
-    if(session.data.user_id != admin.admin_id){
+  if (session.data.admin_id != null && admin.admin_id ){
+    if(session.data.admin_id != admin.admin_id){
       router.push('/')
     }
   }
 
   useEffect(() =>{
     //console.log(process.env.API_URL)
-    if(session.data.user_id == null){
+    if(session.data.admin_id == null){
       sessionHandler()
     }
     getAdmin()

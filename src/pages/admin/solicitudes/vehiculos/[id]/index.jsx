@@ -13,22 +13,32 @@ export default function index() {
   const [admin, setAdmin] = useState({})
   const [session, setSession] = useState({
     data: {
+      type: 'admin',
       user_id: null
     }
   })
   
   const sessionHandler = async () => {
+        
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-    console.log('session: ', session.data)
+
+    //console.log('session: ', session.data)
     if(session.data !== null){
-    
-      setSession(session)
+        //console.log('sesión existente: ', session.data)
+        if(session.data.type != 'admin'){
+            //console.log('el tipo de sesion es distinta, redirigiendo')
+            router.push('/')
+        }else{
+            setSession(session)
+        }
+        //router.push(`/user/${session.data.id}`)
+        
     }
     else{
-    
-      router.push('/')
+        //console.log('no hay sesión')
+        router.push('/')
     }
-      
+    
   }
 
   const fetchVehiculos = async () =>{
@@ -47,9 +57,15 @@ export default function index() {
     
   }
 
+  if (session.data.admin_id != null && admin.admin_id ){
+    if(session.data.admin_id != admin.admin_id){
+      router.push('/')
+    }
+  }
+
   useEffect(() =>{
     //console.log('ejecutamos use effect')
-    if(session.data.user_id == null){
+    if(session.data.admin_id == null){
         //console.log('obtenemos la sesion')
         sessionHandler()
     }

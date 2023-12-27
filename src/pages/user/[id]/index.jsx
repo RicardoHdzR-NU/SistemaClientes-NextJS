@@ -13,6 +13,7 @@ function index(){
 
     const [session, setSession] = useState({
         data: {
+            type: 'user',
             user_id: null
         }
     })
@@ -24,8 +25,14 @@ function index(){
         //console.log('session: ', session.data)
         if(session.data !== null){
             //console.log('sesión existente: ', session.data)
+            if(session.data.type != 'user'){
+                //console.log('el tipo de sesion es distinta, redirigiendo')
+                router.push('/')
+            }else{
+                setSession(session)
+            }
             //router.push(`/user/${session.data.id}`)
-            setSession(session)
+            
         }
         else{
             //console.log('no hay sesión')
@@ -85,6 +92,12 @@ function index(){
         setUsuario(result.data.user)
         
     }
+
+    if (session.data.user_id != null && usuario.user_id ){
+        if(session.data.user_id != usuario.user_id){
+          router.push('/')
+        }
+      }
 
     //Hook que se ejecuta al cargar la página para llamar a getUser
     useEffect(() =>{

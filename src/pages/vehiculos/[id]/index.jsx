@@ -24,17 +24,26 @@ export default function index() {
   
 
   const sessionHandler = async () => {
+        
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+
     //console.log('session: ', session.data)
     if(session.data !== null){
-    
-      setSession(session)
+        //console.log('sesión existente: ', session.data)
+        if(session.data.type != 'user'){
+            //console.log('el tipo de sesion es distinta, redirigiendo')
+            router.push('/')
+        }else{
+            setSession(session)
+        }
+        //router.push(`/user/${session.data.id}`)
+        
     }
     else{
-    
-      router.push('/')
+        //console.log('no hay sesión')
+        router.push('/')
     }
-      
+    
   }
 
   const fetchVehiculos = async () =>{
@@ -51,6 +60,12 @@ export default function index() {
     //console.log('usuario: ', result.data.user)  
     setUsuario(result.data.user)
     
+  }
+
+  if (session.data.user_id != null && usuario.user_id ){
+    if(session.data.user_id != usuario.admin_id){
+      router.push('/')
+    }
   }
 
   useEffect(() =>{

@@ -19,7 +19,12 @@ export default function Home() {
         //console.log('session: ', session.data)
         if(session.data !== null){
             //console.log('sesión existente: ', session.data)
-            router.push(`/user/${session.data.user_id}`)
+            if(session.data.type == 'user'){
+                router.push(`/user/${session.data.user_id}`)
+            }else if(session.data.type == 'admin'){
+                router.push(`/admin/${session.data.admin_id}`)
+            }
+            //router.push(`/user/${session.data.user_id}`)
         }
     }
   

@@ -33,7 +33,7 @@ export default function index (req, res){
                     //req.session.user = results.rows[0];
                     //console.log(req.session);
                     const session = {type: 'user',
-                    id: results.rows[0]}
+                    user_id: results.rows[0].user_id}
                     setSession(res, session)
                     //regresamos el id
                     res.json({
