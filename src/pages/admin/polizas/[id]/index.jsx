@@ -88,6 +88,8 @@ export default function index() {
 
   return (
     <Container>
+      {session.data.admin_id != null &&
+      <div>
       <_Navbar1 user={admin}/>
       <Table bordered hover >
         <thead>
@@ -110,6 +112,8 @@ export default function index() {
           ))}
         </tbody>
       </Table>
+      </div>}
+      
     </Container>
     
   )

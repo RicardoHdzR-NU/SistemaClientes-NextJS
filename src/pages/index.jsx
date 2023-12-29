@@ -10,9 +10,9 @@ export default function Home() {
   const router = useRouter()
   
 
-  useEffect(() =>{
-      sessionHandler();
-  },[])
+    useEffect(() =>{
+        sessionHandler();
+    },[])
 
     const sessionHandler = async () => {
         const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
@@ -22,7 +22,7 @@ export default function Home() {
             if(session.data.type == 'user'){
                 router.push(`/user/${session.data.user_id}`)
             }else if(session.data.type == 'admin'){
-                router.push(`/admin/${session.data.admin_id}`)
+                router.push(`/admin/home/${session.data.admin_id}`)
             }
             //router.push(`/user/${session.data.user_id}`)
         }

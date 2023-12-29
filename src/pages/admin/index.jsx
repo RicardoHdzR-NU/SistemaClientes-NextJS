@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Form, Button, Card, Row, Container } from 'react-bootstrap'
 import { useRouter } from "next/router";
 import axios from 'axios'
-import {signIn, useSession} from 'next-auth/react'
+
 
 
 export default function LogInAdmin(){

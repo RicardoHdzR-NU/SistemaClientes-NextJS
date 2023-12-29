@@ -111,6 +111,8 @@ export default function index() {
 
   return (
     <Container>
+      {session.data.user_id != null &&
+      <div>
       <_Navbar user={usuario}/>
       <Table bordered hover >
         <thead>
@@ -161,6 +163,8 @@ export default function index() {
               </Button>
             </Modal.Footer>
       </Modal>
+      </div>}
+      
     </Container>
     
   )
