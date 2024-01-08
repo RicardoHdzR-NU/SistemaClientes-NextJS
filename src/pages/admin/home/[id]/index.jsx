@@ -20,21 +20,14 @@ function index(){
     const sessionHandler = async () => {
         
         const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-
-        //console.log('session: ', session.data)
         if(session.data !== null){
-            //console.log('sesión existente: ', session.data)
             if(session.data.type != 'admin'){
-                //console.log('el tipo de sesion es distinta, redirigiendo')
                 router.push('/')
             }else{
                 setSession(session)
             }
-            //router.push(`/user/${session.data.id}`)
-            
         }
         else{
-            //console.log('no hay sesión')
             router.push('/')
         }
         
@@ -64,9 +57,7 @@ function index(){
             sessionHandler()
         }
         if(id){
-            //console.log('id: ', id)
             getAdmin()
-            //console.log(usuario)
         }
         
     },[id])

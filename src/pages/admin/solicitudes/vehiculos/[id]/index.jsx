@@ -1,14 +1,12 @@
 import React, {useEffect, useState} from 'react'
-import { Container, Table, Button } from 'react-bootstrap'
+import { Container, Table, Button, Modal, Row } from 'react-bootstrap'
 import _Navbar from '../../../../components/_Navbar1'
 import axios from 'axios'
 import { useRouter } from "next/router";
-
-//export default function index({ vehiculos, usuario }) {
+import { format, parseISO } from 'date-fns';
 export default function index() {  
   const router = useRouter()
   const id = router.query.id;
-  //console.log('id: ', id)
   const [vehiculos, setVehiculos] = useState([])
   const [admin, setAdmin] = useState({})
   const [session, setSession] = useState({
@@ -17,44 +15,45 @@ export default function index() {
       user_id: null
     }
   })
+  const [editConductores, setEditConductores] = useState({})
+  const [conductoresError, setConductoresError] = useState({})
   
   const sessionHandler = async () => {
         
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
 
-    //console.log('session: ', session.data)
     if(session.data !== null){
-        //console.log('sesión existente: ', session.data)
         if(session.data.type != 'admin'){
-            //console.log('el tipo de sesion es distinta, redirigiendo')
             router.push('/')
         }else{
             setSession(session)
         }
-        //router.push(`/user/${session.data.id}`)
         
     }
     else{
-        //console.log('no hay sesión')
         router.push('/')
     }
     
   }
 
   const fetchVehiculos = async () =>{
-    //console.log('id: ', id)
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/solicitudes/vehiculos/`)
-    //console.log('vehiculos: ', results.data.vehiculos) 
+    await formatDates(results.data.vehiculos)
     setVehiculos(results.data.vehiculos)
     
   }
 
   const getAdmin = async () =>{
-    //console.log('id: ', id)
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)
-    //console.log('usuario: ', result.data.user)  
     setAdmin(result.data.admin)
     
+  }
+
+  async function formatDates(data) {
+    data.forEach(element => {
+      const date = parseISO(element.fecha_solicitud)
+      element.fecha_solicitud = format(date, 'MM/dd/yyyy')
+    });
   }
 
   if (session.data.admin_id != null && admin.admin_id ){
@@ -63,19 +62,36 @@ export default function index() {
     }
   }
 
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+
+  async function handleShow (conductores_id) {
+    setShow(true);
+    setEditConductores(conductores_id);
+  }
+
+  const handleConductoresUpdate = async () => {
+    const updatedConductores = {
+      principal: editConductores.conductorPrincipal,
+      ad1: editConductores.conductorAd1,
+      ad2: editConductores.conductorAd2
+    }
+    const result = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/vehiculo/${editConductores.vehiculo_id}`, {
+      body: updatedConductores
+    })
+    setConductoresError(result.data);
+    if(!conductoresError.error){
+      const deletion = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/vehiculos/${editConductores.vehiculo_id}`)
+    }
+  }
+
   useEffect(() =>{
-    //console.log('ejecutamos use effect')
     if(session.data.admin_id == null){
-        //console.log('obtenemos la sesion')
         sessionHandler()
     }
     getAdmin()
-    
-    /*if(!id){
-        id = router.query.id
-    }*/
     if(vehiculos.length == 0){
-      //console.log('obtenemos los vehiculos')
       fetchVehiculos()
     }
   },[vehiculos, id])
@@ -93,19 +109,43 @@ export default function index() {
             <th>Conductor Ad. 1</th>
             <th>Conductor Ad. 2</th>
             <th># de Vehiculo</th>
+            <th>Fecha de Solicitud</th>
+            <th>Aprobación</th>
           </tr>
         </thead>
         <tbody>
           {vehiculos.map((vehiculo) => (
-            <tr key={vehiculo.vehiculo_id}>
+            <tr key={vehiculo.actualizacion_id}>
               {Object.values(vehiculo).map((val, index) => (
                 <td key={index}>{val}</td>
               ))}
+              <td>
+                <Button variant='primary' onClick={() => handleShow(vehiculo)}>Aprobar Solicitud</Button>
+              </td>
             </tr>
           ))}
         </tbody>
       </Table>
       </div>}
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+            Confirmación de cambio
+        </Modal.Header>
+        <Modal.Body>
+          <Row className="mb-3">Num. de Vehiculo: {editConductores.vehiculo_id}</Row>
+          <Row className="mb-3">Conductor Principal: {editConductores.conductorPrincipal}</Row>
+          <Row className="mb-3">Conductor Adicional 1: {editConductores.conductorAd1}</Row>
+          <Row className="mb-3">Conductor Adicional 2: {editConductores.conductorAd2}</Row>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={handleConductoresUpdate}>
+              Aprobar cambio
+          </Button>
+          {conductoresError.error ? <Row>{conductoresError.message}</Row> 
+          : <Row>{conductoresError.message}</Row>}
+        </Modal.Footer>
+      </Modal>
     </Container>
     
   )

@@ -1,10 +1,7 @@
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import { Button, Card, Row } from 'react-bootstrap'
-//import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios';
-//import { useRouter } from 'next/navigation'
 import { useRouter } from 'next/router'
-//import Cookies from 'js-cookie'
 
 export default function Home() {
   const router = useRouter()
@@ -16,19 +13,15 @@ export default function Home() {
 
     const sessionHandler = async () => {
         const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-        //console.log('session: ', session.data)
         if(session.data !== null){
-            //console.log('sesión existente: ', session.data)
             if(session.data.type == 'user'){
                 router.push(`/user/${session.data.user_id}`)
             }else if(session.data.type == 'admin'){
                 router.push(`/admin/home/${session.data.admin_id}`)
             }
-            //router.push(`/user/${session.data.user_id}`)
         }
     }
   
-  //renderizado de la página
   return(
       <Card className='text-center'>
           <Card.Body>
@@ -41,10 +34,7 @@ export default function Home() {
                   <Button variant='secondary' onClick={() => router.push('/signIn')}>Registrarse</Button>
               </Row>
               <Row className='my-2'>
-                  <Button variant='info'>Ingresar como Invitado</Button>
-              </Row>
-              <Row className='my-2'>
-                  <Button variant='info' onClick={() => router.push('/admin')} >Ingresar como Admin</Button>
+                  <Button variant='info' onClick={() => router.push('https://www.nationalunity.com')}>Ingresar como Invitado</Button>
               </Row>
           </Card.Body>
       </Card>

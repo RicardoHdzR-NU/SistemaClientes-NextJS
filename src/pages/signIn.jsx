@@ -1,16 +1,12 @@
 "use client"
 import {useState, useEffect} from 'react'
-//import 'bootstrap/dist/css/bootstrap.min.css'
 import { Form, Button, Card, Row } from 'react-bootstrap'
-//import { useNavigate } from 'react-router-dom'
-//import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import {signIn, useSession} from 'next-auth/react'
 
 export default function signin() {
     //función para regresar al inicio
-    //const navigate = useNavigate();
     const router = useRouter();
     const returnHome = async () => {
         router.push('/')
@@ -19,7 +15,6 @@ export default function signin() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState("")
     const [nombre, setNombre] = useState('')
-    //const [apellidos, setApellido] = useState('')
     //Hooks para capturar al usuario y al error
     const [user, setUser] = useState({
         id: null,
@@ -31,7 +26,6 @@ export default function signin() {
         pictureuser: null,
     })
     const [error, setError] = useState(false)
-    //const [token, setToken] = useState('')
     const {data: session} = useSession()
     console.log(session)
 
@@ -48,25 +42,17 @@ export default function signin() {
         setUser(userData);
     }
 
-    /*if(session !== null || session !== undefined){
-        handleGoogleSignIn()
-    }*/
-
     //Hook que se ejecuta al cargar la página y cuando cambia "user", si existe user envía a la página de usuario
     useEffect(() =>{
 
         if( user.id !== null ){
             console.log("usuario registrado")
             router.push(`/user/${user.id}`)
-            //navigate(`/user/${user["id"]}`)
-            //navigate('/')
         }
 
         if(session && session.user){
             handleGoogleSignIn()
             console.log("usuario registrado con google")
-            
-            //router.push(`/user/${user.id}`)
         }
     },[user, session])
 
@@ -77,7 +63,6 @@ export default function signin() {
             email: email,
             password: password,}
         //request a la base de datos para registrar al usuario
-        //const result = await axios.post(`${import.meta.env.VITE_REACT_APP_NEW_API_URL}/api/v1/user_national_unities/signin`,{
         const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/signin`,{
             body: userDetails,
         })
@@ -85,9 +70,7 @@ export default function signin() {
         //definimos el error y el usuario
         const err = result.data.error
         const userData = result.data.user
-        //const userToken = result.data.user.token
         setError(err);
-        //setToken(userToken);
         setUser(userData);
     }
 

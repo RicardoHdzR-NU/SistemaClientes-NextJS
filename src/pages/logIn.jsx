@@ -13,13 +13,10 @@ export default function LogIn(){
         router.push('/')
     }
     
-    //Hooks para capturar los datos de inicio de sesión
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
-    //Hooks para capturar la información que regresa el request a la BD
     const [user, setUser] = useState({})
     const [error, setError] = useState(false)
-    //const [token, setToken] = useState('')
     const handleGoogleLogIn = async () =>{
         const userDetails = {
             name: session?.user?.name, 
@@ -32,20 +29,15 @@ export default function LogIn(){
         const userData = result.data.user
         setUser(userData);
     }
-    //Hook que se ejecuta 1 vez al entrar a la página y cada que el objeto "user" cambie
+
     useEffect(() =>{
         
         if(user.user_id){
-            console.log('hay un usuario: ', user)
-            //sessionHandler();
             router.push(`/user/${user.user_id}`)
         }
 
         if(session && session.user){
             handleGoogleLogIn()
-            console.log("usuario registrado con google")
-            
-            //router.push(`/user/${user.id}`)
         }
     },[user, session])
 

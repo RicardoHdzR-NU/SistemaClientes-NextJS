@@ -8,11 +8,10 @@ export default (req, res) => {
             const query = req.query;
             const {id} = query
             console.log(id)
-            pgPool.query('SELECT actualizacion_id, conductor_principal, conductor_ad1, conductor_ad2, vehiculo_id FROM actualizaciones_conductores', (error, results) => {
+            pgPool.query('SELECT actualizacion_id, conductor_principal, conductor_ad1, conductor_ad2, vehiculo_id, fecha_solicitud FROM actualizaciones_conductores', (error, results) => {
                 if (error) {
                     throw error;
                 };
-                //console.log(results.rows)
                 res.status(200).json({
                     error: false, 
                     message: 'vehiculos encontrados',

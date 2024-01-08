@@ -1,6 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { destroySession } from "../../utils/session";
-import { redirect } from "next/navigation";
 
 export default async function logout(req, res){
 

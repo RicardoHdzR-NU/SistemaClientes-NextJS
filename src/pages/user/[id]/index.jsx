@@ -9,7 +9,6 @@ function index(){
     const router = useRouter()
 
     const id = router.query.id;
-    //console.log('environment: ', process.env.NEXT_PUBLIC_API_URL)
 
     const [session, setSession] = useState({
         data: {
@@ -21,21 +20,14 @@ function index(){
     const sessionHandler = async () => {
         
         const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-
-        //console.log('session: ', session.data)
         if(session.data !== null){
-            //console.log('sesión existente: ', session.data)
             if(session.data.type != 'user'){
-                //console.log('el tipo de sesion es distinta, redirigiendo')
                 router.push('/')
             }else{
                 setSession(session)
             }
-            //router.push(`/user/${session.data.id}`)
-            
         }
         else{
-            //console.log('no hay sesión')
             router.push('/')
         }
         
@@ -85,9 +77,6 @@ function index(){
 
     //función para obtener el usuario a partir del id
     const getUser = async () =>{
-        /*const url = String(process.env.API_URL) + '/user'
-        console.log(url)
-        console.log(process.env.API_URL)*/
         const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)  
         setUsuario(result.data.user)
         
@@ -105,9 +94,7 @@ function index(){
             sessionHandler()
         }
         if(id){
-            //console.log('id: ', id)
             getUser()
-            //console.log(usuario)
         }
         
     },[id])

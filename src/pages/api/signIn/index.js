@@ -1,4 +1,3 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { pgPool } from "../../../utils/database";
 import jwt from 'jsonwebtoken'
 
@@ -22,12 +21,7 @@ export default function index(req, res){
                         if (error) {
                             throw error
                         };
-                        //console.log('usuario nuevo: ');
-                        //console.log(results1.rows[0]);
                         //guardamos el id
-                        /*req.session.user = results.rows[0];
-                        console.log(req.session);*/
-                        
                         res.status(200).json({
                             error: false, 
                             message: 'Created new user',
@@ -35,7 +29,6 @@ export default function index(req, res){
                         });
                     });
                 }else{
-                    //console.log('el usuario ya existe')
                     res.status(400).json({
                         error: true, 
                         message: 'User already exists',

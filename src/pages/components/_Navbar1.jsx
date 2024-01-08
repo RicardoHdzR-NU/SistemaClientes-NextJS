@@ -13,15 +13,10 @@ export default function _Navbar1({user}) {
 
   const logOut = async () =>{
     handleDestroySession()
-    //router.push('/');
     signOut({callbackUrl: 'http://localhost:3000'})
-    
-    
-    //console.log('sesión terminada')
     
   }
 
-  //console.log(user)
   return (
     <Navbar className="bg-body-tertiary " fixed='top' >
       <Container >

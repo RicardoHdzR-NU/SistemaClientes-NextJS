@@ -1,4 +1,3 @@
-import { NextApiRequest, NextApiResponse } from "next"
 import jwt from "jsonwebtoken";
 import { pgPool } from "../../../utils/database";
 import { setSession } from "../../../utils/session";
@@ -9,29 +8,21 @@ export default function index (req, res){
     switch(method){
         case 'POST':
             const email = req.body.body.email
-            //console.log(process.env.SECRET)
             const password = jwt.sign(req.body.body.password, `${process.env.SECRET}`)
-            //console.log(email)
-            //console.log(password)
             //buscamos el usuario
             pgPool.query('SELECT user_id FROM usuarios WHERE email = $1 AND password = $2', [email, password], (error, results) =>{
                 if (error) {
                     throw error
                 }
                 //si el usuario no existe regresamos null
-                if(results.rowCount === 0){
-                    //console.log('el usuario no existe'); 
+                if(results.rowCount === 0){ 
                     res.status(400).json({
                         error: true, 
                         message: 'Log in failure',
                         user: null,
                     }); 
                 }else{
-                    //console.log('usuario ya existente: ');
-                    //console.log(results.rows[0]);
                     //guardamos el id del usuairo en la sesón
-                    //req.session.user = results.rows[0];
-                    //console.log(req.session);
                     const session = {type: 'user',
                     user_id: results.rows[0].user_id}
                     setSession(res, session)

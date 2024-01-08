@@ -1,4 +1,3 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { pgPool } from "../../../utils/database";
 
 export default (req, res) => {

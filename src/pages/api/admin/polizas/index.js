@@ -1,4 +1,3 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { pgPool } from "../../../../utils/database";
 
 export default (req, res) => {
@@ -13,7 +12,6 @@ export default (req, res) => {
                 if (error) {
                     throw error;
                 };
-                //console.log(results.rows)
                 res.status(200).json({
                     error: false, 
                     message: 'polizas encontradas',

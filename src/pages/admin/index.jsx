@@ -3,16 +3,11 @@ import { Form, Button, Card, Row, Container } from 'react-bootstrap'
 import { useRouter } from "next/router";
 import axios from 'axios'
 
-
-
 export default function LogInAdmin(){
     const router = useRouter();
-    //const {data: session} = useSession()
-    
     const returnHome = async () => {
         router.push('/')
     }
-    
     //Hooks para capturar los datos de inicio de sesión
     const [name, setName] = useState("");
     const [password, setPassword] = useState("")
@@ -24,8 +19,6 @@ export default function LogInAdmin(){
     useEffect(() =>{
         
         if(admin.admin_id){
-            console.log('hay un admin: ', admin)
-            //sessionHandler();
             router.push(`admin/home/${admin.admin_id}`)
         }
     },[admin])

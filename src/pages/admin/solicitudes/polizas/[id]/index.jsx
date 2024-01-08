@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from 'react'
-import { Container, Table, Button, Modal, Form } from 'react-bootstrap'
+import { Container, Table, Button, Modal, Row } from 'react-bootstrap'
 import _Navbar1 from "../../../../components/_Navbar1";
 import axios from 'axios'
 import { useRouter } from "next/router";
 import { format, parseISO } from 'date-fns';
-//import SolicitudRenovacion from '../../components/SolicitudRenovacion';
 
 export default function index() {
   const router = useRouter()
@@ -17,55 +16,46 @@ export default function index() {
       user_id: null
     }
   })
-
-  //console.log(process.env.API_URL)
+  const [polizaEdit, setPolizaEdit] = useState({})
+  const [polizaError, setPolizaError] = useState({})
 
   const sessionHandler = async () => {
         
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
 
-    //console.log('session: ', session.data)
     if(session.data !== null){
-        //console.log('sesión existente: ', session.data)
         if(session.data.type != 'admin'){
-            //console.log('el tipo de sesion es distinta, redirigiendo')
             router.push('/')
         }else{
             setSession(session)
         }
-        //router.push(`/user/${session.data.id}`)
         
     }
     else{
-        //console.log('no hay sesión')
         router.push('/')
     }
     
   }
 
   const fetchPolizas = async () =>{
-    /*const url = process.env.API_URL + '/polizas';
-    console.log(url)*/
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/solicitudes/polizas/`)
-    //console.log(results.data.polizas)
     await formatDates(results.data.polizas)
     setPolizas(results.data.polizas)
-    //console.log(results)
   }
 
   async function formatDates(polizas) {
     polizas.forEach(element => {
       const date1 = parseISO(element.fecha_inicio)
       const date2 = parseISO(element.fecha_fin)
-      element.fecha_inicio = format(date1, 'dd/MM/yyyy')
-      element.fecha_fin = format(date2, 'dd/MM/yyyy')
+      const date3 = parseISO(element.fecha_solicitud)
+      element.fecha_inicio = format(date1, 'MM/dd/yyyy')
+      element.fecha_fin = format(date2, 'MM/dd/yyyy')
+      element.fecha_solicitud = format(date3, 'MM/dd/yyyy')
     });
   }
 
   const getAdmin = async () =>{
-    //console.log('id: ', id)
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)  
-    //console.log('usuario: ', result.data.user)
     setAdmin(result.data.admin)
   }
 
@@ -75,8 +65,32 @@ export default function index() {
     }
   }
 
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+
+  async function handleShow (poliza_id) {
+    setShow(true);
+    setPolizaEdit(poliza_id);
+  }
+
+  const handleRenovation = async () => {
+    const polizaDetails = {
+      inicio: new Date(polizaEdit.fecha_inicio),
+      fin: new Date(polizaEdit.fecha_fin),
+    }
+    console.log(polizaDetails)
+    const result = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/poliza/${polizaEdit.poliza_id}`, {
+      body: polizaDetails
+    })
+    setPolizaError(result.data);
+    if(!polizaError.error){
+      const deletion = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/poliza/${polizaEdit.poliza_id}`)
+    }
+    
+  }
+
   useEffect(() =>{
-    //console.log(process.env.API_URL)
     if(session.data.admin_id == null){
       sessionHandler()
     }
@@ -95,22 +109,48 @@ export default function index() {
         <thead>
           <tr>
             <th>Id de Renovacion</th>
-            <th>Fecha de Inicio</th>
-            <th>Fecha de Fin</th>
+            <th><Container><Row>Fecha de Inicio</Row>
+            <Row>mm/dd/yyyy</Row></Container></th>
+            <th><Container><Row>Fecha de Fin</Row>
+            <Row>mm/dd/yyyy</Row></Container></th>
+            <th><Container><Row>Fecha de Solicitud</Row>
+            <Row>mm/dd/yyyy</Row></Container></th>
             <th># de Poliza</th>
+            <th>Aprobación</th>
           </tr>
         </thead>
         <tbody>
           {polizas.map((poliza) => (
-            <tr key={poliza.poliza_id}>
+            <tr key={poliza.renovacion_id}>
               {Object.values(poliza).map((val, index) => (
                 <td key={index}>{val}</td>
               ))}
+              <td>
+                <Button variant='primary' onClick={() => handleShow(poliza)}>Aprobar Solicitud</Button>
+              </td>
             </tr>
           ))}
         </tbody>
       </Table>
       </div>}
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+            Confirmación de solicitud
+        </Modal.Header>
+        <Modal.Body>
+          <Row className="mb-3">Num. de Poliza: {polizaEdit.poliza_id}</Row>
+          <Row className="mb-3">Fecha de inicio: {polizaEdit.fecha_inicio}</Row>
+          <Row className="mb-3">Fecha de Fin: {polizaEdit.fecha_fin}</Row>
+
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={handleRenovation}>
+              Aprobar solicitud
+          </Button>
+          {polizaError.error ? <Row>{polizaError.message}</Row> 
+          : <Row>{polizaError.message}</Row>}
+        </Modal.Footer>
+      </Modal>
     </Container>
     
   )

@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react'
-import { Container, Table, Button, Modal, Form } from 'react-bootstrap'
+import { Container, Table, Row } from 'react-bootstrap'
 import _Navbar1 from "../../../components/_Navbar1";
 import axios from 'axios'
 import { useRouter } from "next/router";
 import { format, parseISO } from 'date-fns';
-//import SolicitudRenovacion from '../../components/SolicitudRenovacion';
+
 
 export default function index() {
   const router = useRouter()
@@ -18,54 +18,40 @@ export default function index() {
     }
   })
 
-  //console.log(process.env.API_URL)
-
   const sessionHandler = async () => {
         
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-
-    //console.log('session: ', session.data)
     if(session.data !== null){
-        //console.log('sesión existente: ', session.data)
+
         if(session.data.type != 'admin'){
-            //console.log('el tipo de sesion es distinta, redirigiendo')
             router.push('/')
         }else{
             setSession(session)
-        }
-        //router.push(`/user/${session.data.id}`)
-        
+        } 
     }
     else{
-        //console.log('no hay sesión')
         router.push('/')
     }
     
   }
 
   const fetchPolizas = async () =>{
-    /*const url = process.env.API_URL + '/polizas';
-    console.log(url)*/
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/polizas/`)
-    //console.log(results.data.polizas)
     await formatDates(results.data.polizas)
     setPolizas(results.data.polizas)
-    //console.log(results)
   }
 
   async function formatDates(polizas) {
     polizas.forEach(element => {
       const date1 = parseISO(element.fecha_inicio)
       const date2 = parseISO(element.fecha_fin)
-      element.fecha_inicio = format(date1, 'dd/MM/yyyy')
-      element.fecha_fin = format(date2, 'dd/MM/yyyy')
+      element.fecha_inicio = format(date1, 'MM/dd/yyyy')
+      element.fecha_fin = format(date2, 'MM/dd/yyyy')
     });
   }
 
   const getAdmin = async () =>{
-    //console.log('id: ', id)
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)  
-    //console.log('usuario: ', result.data.user)
     setAdmin(result.data.admin)
   }
 
@@ -76,7 +62,6 @@ export default function index() {
   }
 
   useEffect(() =>{
-    //console.log(process.env.API_URL)
     if(session.data.admin_id == null){
       sessionHandler()
     }
@@ -96,8 +81,10 @@ export default function index() {
           <tr>
             <th># de Poliza</th>
             <th>Tipo de Poliza</th>
-            <th>Fecha de Inicio</th>
-            <th>Fecha de Fin</th>
+            <th><Container><Row>Fecha de Inicio</Row>
+            <Row>mm/dd/yyyy</Row></Container></th>
+            <th><Container><Row>Fecha de Fin</Row>
+            <Row>mm/dd/yyyy</Row></Container></th>
             <th>Archivo</th>
             <th># de Usuario</th>
           </tr>

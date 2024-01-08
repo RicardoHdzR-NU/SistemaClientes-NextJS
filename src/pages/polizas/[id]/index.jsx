@@ -4,7 +4,6 @@ import _Navbar from '../../components/_Navbar';
 import axios from 'axios'
 import { useRouter } from "next/router";
 import { format, parseISO } from 'date-fns';
-//import SolicitudRenovacion from '../../components/SolicitudRenovacion';
 
 export default function index() {
   const router = useRouter()
@@ -21,65 +20,49 @@ export default function index() {
   const [polizaError, setPolizaError] = useState({})
   const [nuevoInicio, setNuevoInicio] = useState(Date())
   const [nuevoFin, setNuevoFin] = useState(Date())
-  //console.log(process.env.API_URL)
 
   const sessionHandler = async () => {
-        
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-
-    //console.log('session: ', session.data)
     if(session.data !== null){
-        //console.log('sesión existente: ', session.data)
         if(session.data.type != 'user'){
-            //console.log('el tipo de sesion es distinta, redirigiendo')
             router.push('/')
         }else{
             setSession(session)
         }
-        //router.push(`/user/${session.data.id}`)
-        
     }
     else{
-        //console.log('no hay sesión')
         router.push('/')
     }
     
   }
 
   const fetchPolizas = async () =>{
-    /*const url = process.env.API_URL + '/polizas';
-    console.log(url)*/
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/polizas/${id}`)
-    //console.log(results.data.polizas)
     await formatDates(results.data.polizas)
     setPolizas(results.data.polizas)
-    //console.log(results)
   }
 
   async function formatDates(polizas) {
     polizas.forEach(element => {
       const date1 = parseISO(element.fecha_inicio)
       const date2 = parseISO(element.fecha_fin)
-      element.fecha_inicio = format(date1, 'dd/MM/yyyy')
-      element.fecha_fin = format(date2, 'dd/MM/yyyy')
+      element.fecha_inicio = format(date1, 'MM/dd/yyyy')
+      element.fecha_fin = format(date2, 'MM/dd/yyyy')
     });
   }
 
   const getUser = async () =>{
-    //console.log('id: ', id)
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)  
-    //console.log('usuario: ', result.data.user)
     setUsuario(result.data.user)
   }
 
   if (session.data.user_id != null && usuario.user_id ){
-    if(session.data.user_id != usuario.admin_id){
+    if(session.data.user_id != usuario.user_id){
       router.push('/')
     }
   }
 
   useEffect(() =>{
-    //console.log(process.env.API_URL)
     if(session.data.user_id == null){
       sessionHandler()
     }
@@ -93,15 +76,14 @@ export default function index() {
 
   const handleClose = () => setShow(false);
   async function handleShow (poliza_id) {
-    //console.log('id: ', poliza_id)
     setShow(true);
     setPolizaEdit(poliza_id);
   }
 
   const handleRenovation = async () => {
     const polizaDetails = {
-      inicio: nuevoInicio,
-      fin: nuevoFin,
+      inicio: new Date(nuevoInicio),
+      fin: new Date(nuevoFin),
     }
     const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/poliza/${polizaEdit.poliza_id}`, {
       body: polizaDetails
@@ -147,11 +129,11 @@ export default function index() {
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>Fecha de Inicio</Form.Label>
-                  <Form.Control type="date" onChange={(e) =>  setNuevoInicio(new Date(e.target.value))}/>
+                  <Form.Control type="date" onChange={(e) =>  setNuevoInicio(e.target.value)}/>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Fecha de Inicio</Form.Label>
-                  <Form.Control type="date" onChange={(e) =>  setNuevoFin(new Date(e.target.value))}/>
+                  <Form.Control type="date" onChange={(e) =>  setNuevoFin(e.target.value)}/>
                 </Form.Group>
                 {polizaError.error ? <Form.Text style={{color: 'red'}}>{polizaError.message}</Form.Text> 
                 : <Form.Text style={{color: 'green'}}>{polizaError.message}</Form.Text>}
@@ -164,7 +146,6 @@ export default function index() {
             </Modal.Footer>
       </Modal>
       </div>}
-      
     </Container>
     
   )

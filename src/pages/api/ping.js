@@ -1,4 +1,3 @@
-
 import { pgPool } from '../../utils/database';
  
 export default async function ping(req, res){

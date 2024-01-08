@@ -1,4 +1,3 @@
-import { NextApiRequest, NextApiResponse} from "next";
 import { pgPool } from "../../../utils/database";
 import { setSession } from "../../../utils/session";
 
@@ -10,8 +9,6 @@ export default function index (req, res){
         case 'POST':
             const name = req.body.body.name
             const email = req.body.body.email
-            //console.log('nombre: ',name)
-            //console.log('email: ', email)
             pgPool.query('SELECT user_id FROM usuarios WHERE name = $1 AND email = $2', [name, email], (error, results) =>{
                 if (error) {
                     throw error
@@ -24,13 +21,10 @@ export default function index (req, res){
                         user: null,
                     }); 
                 }else{
-                    //console.log('usuario ya existente: ');
-                    //console.log(results.rows[0]);
+
                     const session = results.rows[0]
-                    setSession(res, session)
                     //guardamos el id del usuario en a sesión
-                    //req.session.user = results.rows[0];
-                    //console.log(req.session);
+                    setSession(res, session)
                     //regresamos el id del usuario
                     res.status(200).json({
                         error: false, 

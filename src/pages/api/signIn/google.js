@@ -1,6 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { pgPool } from "../../../utils/database";
-
 
 export default function google(req, res){
     const {method} = req;
@@ -23,9 +21,6 @@ export default function google(req, res){
                         console.log('usuario nuevo: ');
                         console.log(results1.rows[0]);
                         //guardamos el id
-                        /*req.session.user = results.rows[0];
-                        console.log(req.session);*/
-                        
                         res.json({
                             error: false, 
                             message: 'Created new user',

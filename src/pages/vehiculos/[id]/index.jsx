@@ -1,14 +1,12 @@
 import React, {useEffect, useState} from 'react'
-import { Container, Table, Button, Modal, Form, Row, Col } from 'react-bootstrap'
+import { Container, Table, Button, Modal, Form } from 'react-bootstrap'
 import _Navbar from '../../components/_Navbar';
 import axios from 'axios'
 import { useRouter } from "next/router";
 
-//export default function index({ vehiculos, usuario }) {
 export default function index() {  
   const router = useRouter()
   const id = router.query.id;
-  //console.log('id: ', id)
   const [vehiculos, setVehiculos] = useState([])
   const [usuario, setUsuario] = useState({})
   const [session, setSession] = useState({
@@ -24,30 +22,21 @@ export default function index() {
   
 
   const sessionHandler = async () => {
-        
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-
-    //console.log('session: ', session.data)
     if(session.data !== null){
-        //console.log('sesión existente: ', session.data)
         if(session.data.type != 'user'){
-            //console.log('el tipo de sesion es distinta, redirigiendo')
             router.push('/')
         }else{
             setSession(session)
         }
-        //router.push(`/user/${session.data.id}`)
-        
     }
     else{
-        //console.log('no hay sesión')
         router.push('/')
     }
     
   }
 
   const fetchVehiculos = async () =>{
-    //console.log('id: ', id)
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/vehiculos/${id}`)
     console.log('vehiculos: ', results.data.vehiculos) 
     setVehiculos(results.data.vehiculos)
@@ -55,32 +44,23 @@ export default function index() {
   }
 
   const getUser = async () =>{
-    //console.log('id: ', id)
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)
-    //console.log('usuario: ', result.data.user)  
     setUsuario(result.data.user)
     
   }
 
   if (session.data.user_id != null && usuario.user_id ){
-    if(session.data.user_id != usuario.admin_id){
+    if(session.data.user_id != usuario.user_id){
       router.push('/')
     }
   }
 
   useEffect(() =>{
-    //console.log('ejecutamos use effect')
     if(session.data.user_id == null){
-        //console.log('obtenemos la sesion')
         sessionHandler()
     }
     getUser()
-    
-    /*if(!id){
-        id = router.query.id
-    }*/
     if(vehiculos.length == 0){
-      //console.log('obtenemos los vehiculos')
       fetchVehiculos()
     }
   },[vehiculos, id])
@@ -89,7 +69,6 @@ export default function index() {
 
   const handleClose = () => setShow(false);
   async function handleShow (conductores_id) {
-    //console.log('id: ', poliza_id)
     setShow(true);
     setEditConductores(conductores_id);
   }

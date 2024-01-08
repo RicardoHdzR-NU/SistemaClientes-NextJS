@@ -7,7 +7,6 @@ export default async function session(req, res){
     switch(method){
         case 'GET':
             const token = getSession(req);
-            //console.log('token: ', token);
             res.json(token)
         break;
         default:
