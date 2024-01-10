@@ -6,6 +6,7 @@ export default function index (req, res){
     const {method} = req
 
     switch(method){
+        //Registramos al usuario
         case 'POST':
             const email = req.body.body.email
             const password = jwt.sign(req.body.body.password, `${process.env.SECRET}`)
@@ -22,7 +23,7 @@ export default function index (req, res){
                         user: null,
                     }); 
                 }else{
-                    //guardamos el id del usuairo en la sesón
+                    //guardamos el id del usuairo en la sesión
                     const session = {type: 'user',
                     user_id: results.rows[0].user_id}
                     setSession(res, session)

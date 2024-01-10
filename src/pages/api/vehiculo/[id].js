@@ -5,20 +5,7 @@ export default (req, res) => {
     const query = req.query;
     const {id} = query
     switch (method){
-        
-        case 'GET' : 
-            pgPool.query('SELECT poliza_id, tipo_poliza, fecha_inicio, fecha_fin, archivo, usuario FROM polizas WHERE poliza_id = $1', [id], (error, results) => {
-                if (error) {
-                    throw error;
-                };
-                res.status(200).json({
-                    error: false, 
-                    message: 'poliza encontradas',
-                    poliza: results.rows[0],
-                });
-            });
-            break;
-
+        //Función que registra un request de cambio de conductores
         case 'POST': 
             const prin = req.body.body.principal;
             const ad1 = req.body.body.ad1;
@@ -34,7 +21,7 @@ export default (req, res) => {
                 });
             })
             break;
-
+        //Función que actualiza los conductores a partir de una request de cambio
         case 'PUT': 
             const _prin = req.body.body.principal;
             const _ad1 = req.body.body.ad1;
@@ -50,7 +37,7 @@ export default (req, res) => {
                 });
             })
             break;
-
+        //Función que elimina una request de cambio de conductores una vez se ha actualizado
         case 'DELETE':
             pgPool.query('DELETE FROM actualizaciones_conductores WHERE vehiculo_id = $1', [id], (error,results) =>{
                 if (error) {

@@ -5,17 +5,17 @@ import axios from 'axios'
 import { signOut } from "next-auth/react";
 
 export default function _Navbar({user}) {
-
+  //Objeto router que se encarga de la navegación
   const router = useRouter()
+  //Función que destruye la sesión
   const handleDestroySession = async () =>{
     const result = await axios.get('http://localhost:3000/api/logout')
   }
-
+  //Función que maneja el log out
   const logOut = async () =>{
     handleDestroySession()
     signOut({callbackUrl: 'http://localhost:3000'})
-    
-}
+  }
 
   return (
     <Navbar className="bg-body-tertiary " fixed='top' >

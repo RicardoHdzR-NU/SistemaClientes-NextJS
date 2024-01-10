@@ -1,4 +1,3 @@
-import { NextApiResponse, NextApiRequest } from "next";
 import formidable from "formidable";
 import fs from "fs/promises"
 import path from "path";
@@ -9,20 +8,17 @@ export const config = {
         bodyParser: false,
     },
 };
-
+//Funciones que manejan el cambio de foto de perfil
 const updatePicture = async (fileName, id) =>{
     const image = fileName
     await pgPool.query('UPDATE usuarios SET pictureuser = $1 WHERE id = $2 RETURNING *',[image, id],(error, results) =>{
         if (error) {
             throw error
         };
-        console.log('Picture updated');
-        console.log(results.rows[0]);
-        /*res.json({
+        res.json({
             error: false, 
             message: 'Image Updated',
-            user: results.rows[0],
-        });*/
+        });
     })
 }
 
@@ -41,20 +37,6 @@ const readFile = async (req, saveLocally) =>{
             return fileName;
         }
     }
-    /*console.log('filename: ' + options.filename);
-
-    pgPool.query('UPDATE usuarios SET pictureuser = $1 WHERE id = $2 RETURNING *',[fileName, id],(error: any, results: { rows: any[]; }) =>{
-        if (error) {
-            throw error
-        };
-        console.log('Picture updated');
-        console.log(results.rows[0]);
-        /*res.json({
-            error: false, 
-            message: 'Image Updated',
-            user: results.rows[0],
-        });
-    })*/
 
     const form = formidable(options)
     return new Promise((resolve, reject) => {

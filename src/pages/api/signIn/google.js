@@ -1,9 +1,10 @@
 import { pgPool } from "../../../utils/database";
-
+import { setSession } from "../../../utils/session"
 export default function google(req, res){
     const {method} = req;
 
     switch (method){
+        //Función que registra al nuevo usuario de Google
         case 'POST':
             const name = req.body.body.name
             const email = req.body.body.email
@@ -18,9 +19,10 @@ export default function google(req, res){
                         if (error) {
                             throw error
                         };
-                        console.log('usuario nuevo: ');
-                        console.log(results1.rows[0]);
-                        //guardamos el id
+                        const session = {type: 'user',
+                        user_id: results1.rows[0].user_id}
+                        setSession(res, session)
+                        //guardamos el id y la sesión
                         res.json({
                             error: false, 
                             message: 'Created new user',
@@ -28,7 +30,6 @@ export default function google(req, res){
                         });
                     });
                 }else{
-                    console.log('el usuario ya existe')
                     res.json({
                         error: true, 
                         message: 'User already exists',

@@ -7,10 +7,17 @@ import { format, parseISO } from 'date-fns';
 
 
 export default function index() {
+  //Objeto router que se encarga de la navegación
   const router = useRouter()
+  //Obtenemos el id haciendo un query al URL y leyendo el [id]
   const id = router.query.id;
+  //Hooks que captural las polizas y el admin
   const [polizas, setPolizas] = useState([])
-  const [admin, setAdmin] = useState({})
+  const [admin, setAdmin] = useState({
+    admin_id: null,
+    name: null
+  })
+  //Hook que captura la sesión
   const [session, setSession] = useState({
     data: {
       type: 'admin',
@@ -18,16 +25,18 @@ export default function index() {
     }
   })
 
+  //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
-        
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    //Si la información de la sesión y la página no coinciden lo regresa a la ruta raíz
     if(session.data !== null){
-
         if(session.data.type != 'admin'){
+            router.push('/')
+        }else if(session.data.admin_id != id){
             router.push('/')
         }else{
             setSession(session)
-        } 
+        }
     }
     else{
         router.push('/')
@@ -35,12 +44,18 @@ export default function index() {
     
   }
 
+  //Obtenemos la información de las polizas
   const fetchPolizas = async () =>{
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/polizas/`)
-    await formatDates(results.data.polizas)
-    setPolizas(results.data.polizas)
+    if(results.data.polizas.length == 0){
+      setPolizas([0])
+    }else{
+      await formatDates(results.data.polizas)
+      setPolizas(results.data.polizas)
+    }
   }
 
+  //Función que le da formato a las fechas
   async function formatDates(polizas) {
     polizas.forEach(element => {
       const date1 = parseISO(element.fecha_inicio)
@@ -50,22 +65,20 @@ export default function index() {
     });
   }
 
+  //Función que obtiene la información del admin
   const getAdmin = async () =>{
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)  
     setAdmin(result.data.admin)
   }
 
-  if (session.data.admin_id != null && admin.admin_id ){
-    if(session.data.admin_id != admin.admin_id){
-      router.push('/')
-    }
-  }
-
+  //Hook que se ejecuta al cargar la página, ejecuta las funciones de sesión, admin y polizas 
   useEffect(() =>{
     if(session.data.admin_id == null){
       sessionHandler()
     }
-    getAdmin()
+    if(id != undefined && admin.admin_id == null){
+      getAdmin()
+    }
     if(polizas.length == 0){
       fetchPolizas()
     }
@@ -88,7 +101,7 @@ export default function index() {
             <th>Archivo</th>
             <th># de Usuario</th>
           </tr>
-        </thead>
+        </thead>{polizas[0] == 0 ? <tbody></tbody> :
         <tbody>
           {polizas.map((poliza) => (
             <tr key={poliza.poliza_id}>
@@ -97,7 +110,7 @@ export default function index() {
               ))}
             </tr>
           ))}
-        </tbody>
+        </tbody>}
       </Table>
       </div>}
       

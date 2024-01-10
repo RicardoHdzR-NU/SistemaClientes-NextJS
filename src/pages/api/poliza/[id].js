@@ -5,20 +5,7 @@ export default (req, res) => {
     const query = req.query;
     const {id} = query
     switch (method){
-        
-        case 'GET' : 
-            pgPool.query('SELECT poliza_id, tipo_poliza, fecha_inicio, fecha_fin, archivo, usuario FROM polizas WHERE poliza_id = $1', [id], (error, results) => {
-                if (error) {
-                    throw error;
-                };
-                res.status(200).json({
-                    error: false, 
-                    message: 'poliza encontradas',
-                    poliza: results.rows[0],
-                });
-            });
-            break;
-            
+        //Registramos el request de la renovación de poliza
         case 'POST': 
             pgPool.query('SELECT fecha_inicio, fecha_fin from polizas WHERE poliza_id = $1' , [id], (error, results) => {
                 if (error) {
@@ -45,7 +32,7 @@ export default (req, res) => {
                 }
             });
             break;
-
+        //Actualizamos la poliza a partir de una solicitud de renovación
         case 'PUT':
             pgPool.query('SELECT fecha_inicio, fecha_fin from polizas WHERE poliza_id = $1' , [id], (error, results) => {
                 if (error) {
@@ -53,10 +40,6 @@ export default (req, res) => {
                 };
                 const inicio = new Date(req.body.body.inicio);
                 const fin = new Date(req.body.body.fin);
-                console.log(inicio)
-                console.log(fin)
-                console.log('-----------------------------------------------')
-                console.log(results.rows[0].fecha_inicio)
                 if(inicio < results.rows[0].fecha_inicio || fin < results.rows[0].fecha_inicio || fin < inicio){
                     res.status(200).json({
                         error: true, 
@@ -75,6 +58,7 @@ export default (req, res) => {
                 }
             });
             break;
+        //Eliminamos la solicitud una vez que actualizamos la poliza
         case 'DELETE':
             pgPool.query('DELETE FROM renovaciones WHERE poliza_id = $1', [id], (error,results) =>{
                 if (error) {

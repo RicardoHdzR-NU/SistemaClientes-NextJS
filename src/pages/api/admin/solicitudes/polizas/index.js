@@ -5,9 +5,6 @@ export default (req, res) => {
 
     switch (method){
         case 'GET' : 
-            const query = req.query;
-            const {id} = query
-            console.log(id)
             pgPool.query('SELECT renovacion_id, fecha_inicio, fecha_fin, fecha_solicitud, poliza_id FROM renovaciones', (error, results) => {
                 if (error) {
                     throw error;

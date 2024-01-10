@@ -6,8 +6,11 @@ import { useRouter } from 'next/router'
 import {signIn, useSession} from 'next-auth/react'
 
 export default function signin() {
-    //función para regresar al inicio
+    //Objeto router que se encarga de la navegación
     const router = useRouter();
+    //Hook que maneja la sesión con el API de Google
+    const {data: session} = useSession()
+    //función para regresar a la página raíz
     const returnHome = async () => {
         router.push('/')
     }
@@ -16,43 +19,21 @@ export default function signin() {
     const [password, setPassword] = useState("")
     const [nombre, setNombre] = useState('')
     //Hooks para capturar al usuario y al error
-    const [user, setUser] = useState({
-        id: null,
-        name: null,
-        email: null,
-        picturegoogle: null,
-        google: null,
-        password: null,
-        pictureuser: null,
-    })
+    const [user, setUser] = useState({})
     const [error, setError] = useState(false)
-    const {data: session} = useSession()
-    console.log(session)
+    
+    
 
-    const handleGoogleSignIn = async () =>{
-        const userDetails = {
-            name: session?.user?.name, 
-            email: session?.user?.email,}
-
-        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/signin/google`,{
-            body: userDetails,
-        })
-
-        const userData = result.data.user
-        setUser(userData);
-    }
-
-    //Hook que se ejecuta al cargar la página y cuando cambia "user", si existe user envía a la página de usuario
+    //Hook que se ejecuta al cargar la página, si el objeto "user" cambia dirige al usuario 
+    //a la pagina de usuario, y si el objeto session cambia hace el sign in con google
     useEffect(() =>{
 
         if( user.id !== null ){
-            console.log("usuario registrado")
             router.push(`/user/${user.id}`)
         }
 
         if(session && session.user){
             handleGoogleSignIn()
-            console.log("usuario registrado con google")
         }
     },[user, session])
 
@@ -63,43 +44,31 @@ export default function signin() {
             email: email,
             password: password,}
         //request a la base de datos para registrar al usuario
-        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/signin`,{
+        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/signIn`,{
             body: userDetails,
         })
-        console.log(result.data)
         //definimos el error y el usuario
         const err = result.data.error
         const userData = result.data.user
         setError(err);
         setUser(userData);
     }
-
     //Función para manejar el sign in con Google
-    /*const responseMessage = async (response) => {
-        const result = await axios.post(`${import.meta.env.VITE_REACT_APP_API_URL}/signin/google`,{
-            withCredentials: true,
-            headers: {Accept: 'application/json',
-            'Content-Type': 'application/json'},
-            //enviamos el Json Web Token al server para autenticar
-            body: `${response.credential}`,
+    const handleGoogleSignIn = async () =>{
+         //Objeto de la información del usuairo
+        const userDetails = {
+            name: session?.user?.name, 
+            email: session?.user?.email,}
+        //request a la base de datos para registrar al usuario
+        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/signIn/google`,{
+            body: userDetails,
         })
-        //capturamos el usuario y el error
+        //definimos el error y el usuario
         const err = result.data.error
         const userData = result.data.user
-        setError(err);
+        setError(err)
         setUser(userData);
-        
-    };
-    const errorMessage = (error) => {
-        console.log(error);
-    };*/
-
-    /*
-<Row className='mb-3 ps-4'>
-                        <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
-                    </Row>
-    */
-    //Si existe un error notificamos que ya existe un usuario con esa información
+    }
     return(
         <Card className='justify-content-center'>
             <Card.Body>

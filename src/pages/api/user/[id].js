@@ -5,10 +5,11 @@ export default (req, res) => {
     const {method} = req;
 
     switch (method){
+        //Función que regresa un usuario
         case 'GET':
             const query = req.query;
             const {id} = query
-            pgPool.query('SELECT * FROM usuarios WHERE user_id = $1', [id], (error, results) => {
+            pgPool.query('SELECT user_id, name, email, picturegoogle, google, pictureuser  FROM usuarios WHERE user_id = $1', [id], (error, results) => {
                 if (error) {
                     throw error;
                 };

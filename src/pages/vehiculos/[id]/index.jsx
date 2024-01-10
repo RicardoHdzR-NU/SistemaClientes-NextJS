@@ -5,74 +5,83 @@ import axios from 'axios'
 import { useRouter } from "next/router";
 
 export default function index() {  
+  //objeto router que se encarga de la navegación
   const router = useRouter()
+  //obtenemos el id del usuario haciendo un query de la ruta y leyendo el id
   const id = router.query.id;
+  //Hook que captura la información de los vehiculos y el usuario
   const [vehiculos, setVehiculos] = useState([])
-  const [usuario, setUsuario] = useState({})
+  const [usuario, setUsuario] = useState({
+    user_id: null,
+  })
+  //Hook que captura la información de la sesión
   const [session, setSession] = useState({
     data: {
       user_id: null
     }
   })
+  //Hooks que ayudan a manejar la solicitud de cambio de conductores
   const [editConductores, setEditConductores] = useState({})
   const [conductoresError, setConductoresError] = useState({})
   const [conductorPrincipal, setConductorPrincipal] = useState("")
   const [conductorAd1, setConductorAd1] = useState("")
   const [conductorAd2, setConductorAd2] = useState("")
   
-
+  //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    //Si el usuario intenta acceder a una página que no coincide con la  
+    //información de su sesión lo redirige a la página raíz
     if(session.data !== null){
         if(session.data.type != 'user'){
             router.push('/')
-        }else{
+        }else if(session.data.user_id != id){
+            router.push('/')
+        }else{ //Capturamos la información de la sesión
             setSession(session)
         }
-    }
+    }//Si no hay información en la sesión lo redirige a la página raíz
     else{
         router.push('/')
     }
-    
   }
 
+  //función para obtener la información de los vehiculos
   const fetchVehiculos = async () =>{
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/vehiculos/${id}`)
-    console.log('vehiculos: ', results.data.vehiculos) 
-    setVehiculos(results.data.vehiculos)
-    
+    if(results.data.vehiculos.length == 0){
+      setVehiculos([0])
+    }else{
+      setVehiculos(results.data.vehiculos)
+    }
   }
-
+  //función para obtener la información del usuario
   const getUser = async () =>{
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)
     setUsuario(result.data.user)
-    
   }
-
-  if (session.data.user_id != null && usuario.user_id ){
-    if(session.data.user_id != usuario.user_id){
-      router.push('/')
-    }
-  }
-
+  //Hook que se ejecuta al cargar la página, se encarga de llamar 
+  //la función de sesión y vehiculos respectivamente
   useEffect(() =>{
     if(session.data.user_id == null){
         sessionHandler()
     }
-    getUser()
+    if(id != undefined && usuario.user_id == null){
+      getUser()
+    }
     if(vehiculos.length == 0){
       fetchVehiculos()
     }
   },[vehiculos, id])
 
+  //Hooks y funciones que manejan el modal
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   async function handleShow (conductores_id) {
     setShow(true);
     setEditConductores(conductores_id);
   }
-
+  //función que maneja el request de cambio de conductores
   const handleConductoresUpdate = async () => {
     const updatedConductores = {
       principal: conductorPrincipal,
@@ -105,7 +114,7 @@ export default function index() {
             <th>Poliza</th>
             <th>Editar</th>
           </tr>
-        </thead>
+        </thead>{vehiculos[0] == 0 ? <tbody></tbody> :
         <tbody>
           {vehiculos.map((vehiculo) => (
             <tr key={vehiculo.vehiculo_id}>
@@ -122,7 +131,7 @@ export default function index() {
               </td>
             </tr>
           ))}
-        </tbody>
+        </tbody>}
       </Table>
       <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
@@ -149,7 +158,7 @@ export default function index() {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="primary" onClick={handleConductoresUpdate}>
-                  Solicitar Renovación
+                  Solicitar Cambio
               </Button>
             </Modal.Footer>
       </Modal>

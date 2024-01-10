@@ -4,51 +4,64 @@ import _Navbar from '../../../../components/_Navbar1'
 import axios from 'axios'
 import { useRouter } from "next/router";
 import { format, parseISO } from 'date-fns';
+
 export default function index() {  
+  //objeto router que maneja la navegación
   const router = useRouter()
+  //Obtenemos el id a partir de hacer un query de la URL y buscar el [id]
   const id = router.query.id;
+  //Hooks de los vehiculos y el admin
   const [vehiculos, setVehiculos] = useState([])
-  const [admin, setAdmin] = useState({})
+  const [admin, setAdmin] = useState({
+    admin_id: null,
+    name: null
+  })
+  //Hook de la sesión
   const [session, setSession] = useState({
     data: {
       type: 'admin',
       user_id: null
     }
   })
+  //Hoks que ayudan a hacer el request de aprovación
   const [editConductores, setEditConductores] = useState({})
   const [conductoresError, setConductoresError] = useState({})
   
+  //Función que obtiene los datos de la sesión
   const sessionHandler = async () => {
-        
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-
+    //si la información de la sesión y la página no coinciden, redirigimos a la página raíz
     if(session.data !== null){
         if(session.data.type != 'admin'){
+            router.push('/')
+        }else if(session.data.admin_id != id){
             router.push('/')
         }else{
             setSession(session)
         }
-        
     }
     else{
         router.push('/')
     }
     
   }
-
+  //Obtenemos la información de los vehiculos
   const fetchVehiculos = async () =>{
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/solicitudes/vehiculos/`)
-    await formatDates(results.data.vehiculos)
-    setVehiculos(results.data.vehiculos)
-    
+    if(results.data.vehiculos.length == 0){
+      setVehiculos([0])
+    }else{
+      await formatDates(results.data.vehiculos)
+      setVehiculos(results.data.vehiculos)
+    } 
   }
-
+  //Obtenemos la información del admin
   const getAdmin = async () =>{
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)
     setAdmin(result.data.admin)
-    
   }
 
+  //Función que da formato a las fechas
   async function formatDates(data) {
     data.forEach(element => {
       const date = parseISO(element.fecha_solicitud)
@@ -56,41 +69,38 @@ export default function index() {
     });
   }
 
-  if (session.data.admin_id != null && admin.admin_id ){
-    if(session.data.admin_id != admin.admin_id){
-      router.push('/')
-    }
-  }
-
+  //Hooks y funciones que manejan el modal
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
-
   async function handleShow (conductores_id) {
     setShow(true);
     setEditConductores(conductores_id);
   }
 
+  //Función que maneja el request de actualización de conductores
   const handleConductoresUpdate = async () => {
     const updatedConductores = {
-      principal: editConductores.conductorPrincipal,
-      ad1: editConductores.conductorAd1,
-      ad2: editConductores.conductorAd2
+      principal: editConductores.conductor_principal,
+      ad1: editConductores.conductor_ad1,
+      ad2: editConductores.conductor_ad2
     }
     const result = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/vehiculo/${editConductores.vehiculo_id}`, {
       body: updatedConductores
     })
     setConductoresError(result.data);
     if(!conductoresError.error){
-      const deletion = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/vehiculos/${editConductores.vehiculo_id}`)
+      const deletion = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/vehiculo/${editConductores.vehiculo_id}`)
     }
   }
 
+  //Hook que se ejecuta al cargar la página, ejecuta las funcioens de sesión, admin y vehiculos
   useEffect(() =>{
     if(session.data.admin_id == null){
         sessionHandler()
     }
-    getAdmin()
+    if(id != undefined && admin.admin_id == null){
+      getAdmin()
+    }
     if(vehiculos.length == 0){
       fetchVehiculos()
     }
@@ -112,7 +122,8 @@ export default function index() {
             <th>Fecha de Solicitud</th>
             <th>Aprobación</th>
           </tr>
-        </thead>
+        </thead>{vehiculos[0] == 0 ? <tbody></tbody> : 
+        
         <tbody>
           {vehiculos.map((vehiculo) => (
             <tr key={vehiculo.actualizacion_id}>
@@ -124,7 +135,7 @@ export default function index() {
               </td>
             </tr>
           ))}
-        </tbody>
+        </tbody>}
       </Table>
       </div>}
 
@@ -134,9 +145,9 @@ export default function index() {
         </Modal.Header>
         <Modal.Body>
           <Row className="mb-3">Num. de Vehiculo: {editConductores.vehiculo_id}</Row>
-          <Row className="mb-3">Conductor Principal: {editConductores.conductorPrincipal}</Row>
-          <Row className="mb-3">Conductor Adicional 1: {editConductores.conductorAd1}</Row>
-          <Row className="mb-3">Conductor Adicional 2: {editConductores.conductorAd2}</Row>
+          <Row className="mb-3">Conductor Principal: {editConductores.conductor_principal}</Row>
+          <Row className="mb-3">Conductor Adicional 1: {editConductores.conductor_ad1}</Row>
+          <Row className="mb-3">Conductor Adicional 2: {editConductores.conductor_ad2}</Row>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={handleConductoresUpdate}>

@@ -5,10 +5,11 @@ export default (req, res) => {
     const {method} = req;
 
     switch (method){
+        //obtenemos el admin
         case 'GET':
             const query = req.query;
             const {id} = query
-            pgPool.query('SELECT * FROM admins WHERE admin_id = $1', [id], (error, results) => {
+            pgPool.query('SELECT admin_id, nombre FROM admins WHERE admin_id = $1', [id], (error, results) => {
                 if (error) {
                     throw error;
                 };

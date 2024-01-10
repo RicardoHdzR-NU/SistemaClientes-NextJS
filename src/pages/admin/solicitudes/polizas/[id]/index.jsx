@@ -6,25 +6,36 @@ import { useRouter } from "next/router";
 import { format, parseISO } from 'date-fns';
 
 export default function index() {
+  //Objeto router que se encarga de la navegación
   const router = useRouter()
+  //Obtenemos el id al hacer un query al URL y leer el [id]
   const id = router.query.id;
+  //Hooks que captural las polizas y al admin
   const [polizas, setPolizas] = useState([])
-  const [admin, setAdmin] = useState({})
+  const [admin, setAdmin] = useState({
+    admin_id: null,
+    name: null
+  })
+  //Hook que captura la sesión
   const [session, setSession] = useState({
     data: {
       type: 'admin',
       user_id: null
     }
   })
+  //Hooks que ayudan a manejar las requests de actualización
   const [polizaEdit, setPolizaEdit] = useState({})
   const [polizaError, setPolizaError] = useState({})
 
+  //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
         
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
-
     if(session.data !== null){
+        //si la información de la sesión y la de la página no coinciden lo regresa a la página raíz
         if(session.data.type != 'admin'){
+            router.push('/')
+        }else if(session.data.admin_id != id){
             router.push('/')
         }else{
             setSession(session)
@@ -37,12 +48,17 @@ export default function index() {
     
   }
 
+  //Obtenemos la informacipin de las polizas
   const fetchPolizas = async () =>{
     const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/solicitudes/polizas/`)
-    await formatDates(results.data.polizas)
-    setPolizas(results.data.polizas)
+    if(results.data.polizas.length == 0){
+      setPolizas([0])
+    }else{
+      await formatDates(results.data.polizas)
+      setPolizas(results.data.polizas)
+    }
   }
-
+  //Función para darle formato a las fechas
   async function formatDates(polizas) {
     polizas.forEach(element => {
       const date1 = parseISO(element.fecha_inicio)
@@ -53,33 +69,26 @@ export default function index() {
       element.fecha_solicitud = format(date3, 'MM/dd/yyyy')
     });
   }
-
+  //Obtenemos la información del admin
   const getAdmin = async () =>{
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)  
     setAdmin(result.data.admin)
   }
 
-  if (session.data.admin_id != null && admin.admin_id ){
-    if(session.data.admin_id != admin.admin_id){
-      router.push('/')
-    }
-  }
-
+  //Hookas y función que manejan el modal
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
-
   async function handleShow (poliza_id) {
     setShow(true);
     setPolizaEdit(poliza_id);
   }
 
+  //Función que maneja la actualización de las polizas
   const handleRenovation = async () => {
     const polizaDetails = {
       inicio: new Date(polizaEdit.fecha_inicio),
       fin: new Date(polizaEdit.fecha_fin),
     }
-    console.log(polizaDetails)
     const result = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/poliza/${polizaEdit.poliza_id}`, {
       body: polizaDetails
     })
@@ -90,11 +99,15 @@ export default function index() {
     
   }
 
+  //Hook que se ejecuta al cargar la página, obtiene la sesión, el admin y las polizas
   useEffect(() =>{
     if(session.data.admin_id == null){
       sessionHandler()
     }
-    getAdmin()
+    if(id != undefined && admin.admin_id == null){
+      getAdmin()
+    }
+    
     if(polizas.length == 0){
       fetchPolizas()
     }
@@ -118,7 +131,7 @@ export default function index() {
             <th># de Poliza</th>
             <th>Aprobación</th>
           </tr>
-        </thead>
+        </thead>{polizas[0] == 0 ? <tbody></tbody> :
         <tbody>
           {polizas.map((poliza) => (
             <tr key={poliza.renovacion_id}>
@@ -130,7 +143,7 @@ export default function index() {
               </td>
             </tr>
           ))}
-        </tbody>
+        </tbody>}
       </Table>
       </div>}
       <Modal show={show} onHide={handleClose}>

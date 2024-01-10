@@ -1,30 +1,42 @@
 import React, {useEffect, useState} from 'react'
-import { Container, Table, Button, Modal, Form } from 'react-bootstrap'
+import { Container, Table, Button, Modal, Form, Row } from 'react-bootstrap'
 import _Navbar from '../../components/_Navbar';
 import axios from 'axios'
 import { useRouter } from "next/router";
 import { format, parseISO } from 'date-fns';
 
 export default function index() {
+  //objeto router que se encarga de la navegación
   const router = useRouter()
+  //obtenemos el id del usuario haciendo un query de la ruta y leyendo el id
   const id = router.query.id;
+  //Hooks que captural las polizas y al usuario
   const [polizas, setPolizas] = useState([])
-  const [usuario, setUsuario] = useState({})
+  const [usuario, setUsuario] = useState({
+    user_id: null,
+  })
+  //Hook que captura la sesión
   const [session, setSession] = useState({
     data: {
       type: 'user',
       user_id: null
     }
   })
+  //Hooks que ayuda a ejecutar el request de la renovación de polizas
   const [polizaEdit, setPolizaEdit] = useState({})
   const [polizaError, setPolizaError] = useState({})
   const [nuevoInicio, setNuevoInicio] = useState(Date())
   const [nuevoFin, setNuevoFin] = useState(Date())
 
+  //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
     const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    //redirigimos al usuario a la página raíz si no coincide 
+    //la información de la sesión con la página
     if(session.data !== null){
         if(session.data.type != 'user'){
+            router.push('/')
+        }else if(session.data.user_id != id){
             router.push('/')
         }else{
             setSession(session)
@@ -33,15 +45,21 @@ export default function index() {
     else{
         router.push('/')
     }
+  }
+
+  //Función para obtener las polizas
+  const fetchPolizas = async () =>{
+    const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/polizas/${id}`)
+    if(results.data.polizas.length){
+      setPolizas([0])
+    }else{
+      await formatDates(results.data.polizas)
+      setPolizas(results.data.polizas)
+    }
     
   }
 
-  const fetchPolizas = async () =>{
-    const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/polizas/${id}`)
-    await formatDates(results.data.polizas)
-    setPolizas(results.data.polizas)
-  }
-
+  //Función para dar el formato a las fechas
   async function formatDates(polizas) {
     polizas.forEach(element => {
       const date1 = parseISO(element.fecha_inicio)
@@ -51,35 +69,34 @@ export default function index() {
     });
   }
 
+  //Función para obtener el usuario
   const getUser = async () =>{
     const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)  
     setUsuario(result.data.user)
   }
 
-  if (session.data.user_id != null && usuario.user_id ){
-    if(session.data.user_id != usuario.user_id){
-      router.push('/')
-    }
-  }
-
+  //Función que se ejecuta al cargar la página y ejecuta las funciones de sesión, usuario y poliza
   useEffect(() =>{
     if(session.data.user_id == null){
       sessionHandler()
     }
-    getUser()
+    if(id != undefined && usuario.user_id == null){
+      getUser()
+    }
     if(polizas.length == 0){
       fetchPolizas()
     }
   },[polizas, id])
 
+  //Funciones que manejan el modal
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   async function handleShow (poliza_id) {
     setShow(true);
     setPolizaEdit(poliza_id);
   }
 
+  //Función que maneja el request de la renovación de poliza
   const handleRenovation = async () => {
     const polizaDetails = {
       inicio: new Date(nuevoInicio),
@@ -101,12 +118,14 @@ export default function index() {
           <tr>
             <th># de Poliza</th>
             <th>Tipo de Poliza</th>
-            <th>Fecha de Inicio</th>
-            <th>Fecha de Fin</th>
+            <th><Container><Row>Fecha de Inicio</Row>
+            <Row>mm/dd/yyyy</Row></Container></th>
+            <th><Container><Row>Fecha de Fin</Row>
+            <Row>mm/dd/yyyy</Row></Container></th>
             <th>Archivo</th>
             <th>Renovación</th>
           </tr>
-        </thead>
+        </thead>{polizas[0] == 0 ? <tbody></tbody> :
         <tbody>
           {polizas.map((poliza) => (
             <tr key={poliza.poliza_id}>
@@ -118,7 +137,7 @@ export default function index() {
               </td>
             </tr>
           ))}
-        </tbody>
+        </tbody>}
       </Table>
       <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>

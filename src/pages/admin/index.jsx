@@ -4,7 +4,9 @@ import { useRouter } from "next/router";
 import axios from 'axios'
 
 export default function LogInAdmin(){
+    //Objeto router que se encarga de la navegación
     const router = useRouter();
+    //Función para regresar  la página raíz
     const returnHome = async () => {
         router.push('/')
     }
@@ -12,18 +14,21 @@ export default function LogInAdmin(){
     const [name, setName] = useState("");
     const [password, setPassword] = useState("")
     //Hooks para capturar la información que regresa el request a la BD
-    const [admin, setAdmin] = useState({})
+    const [admin, setAdmin] = useState({
+        admin_id: null,
+        name: null
+    })
     const [error, setError] = useState(false)
     
     //Hook que se ejecuta 1 vez al entrar a la página y cada que el objeto "user" cambie
     useEffect(() =>{
         
-        if(admin.admin_id){
+        if(admin.admin_id != null){
             router.push(`admin/home/${admin.admin_id}`)
         }
     },[admin])
 
-    //Función para manejar log in local (no Google)
+    //Función para manejar log in
     const handleLogIn = async () => {
         const userDetails = {
             email: name,
@@ -31,8 +36,6 @@ export default function LogInAdmin(){
         const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/admin/logIn`,{
             body: userDetails,
         })
-
-        console.log(result.data)
         //definimos el error y el usuario
         const err = result.data.error
         const userData = result.data.user

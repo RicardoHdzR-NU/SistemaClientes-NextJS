@@ -6,30 +6,23 @@ import {signIn, useSession} from 'next-auth/react'
 
 
 export default function LogIn(){
+    //Objeto router que maneja la navegación
     const router = useRouter();
+    //Hook que maneja la sesión con el API de Google
     const {data: session} = useSession()
-    
+    //Función para regresar a la página raíz
     const returnHome = async () => {
         router.push('/')
     }
-    
+    //Hooks para capturar la información del usuario
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
+    //Hooks para capturar el usuario y el error
     const [user, setUser] = useState({})
     const [error, setError] = useState(false)
-    const handleGoogleLogIn = async () =>{
-        const userDetails = {
-            name: session?.user?.name, 
-            email: session?.user?.email,}
-
-        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login/google`,{
-            body: userDetails,
-        })
-
-        const userData = result.data.user
-        setUser(userData);
-    }
-
+    
+    //Hook que se ejecuta al cargar la página, si el objeto "user" cambia dirige al usuario 
+    //a la pagina de usuario, y si el objeto session cambia hace el log in con Google
     useEffect(() =>{
         
         if(user.user_id){
@@ -49,8 +42,6 @@ export default function LogIn(){
         const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/logIn`,{
             body: userDetails,
         })
-
-        console.log(result.data)
         //definimos el error y el usuario
         const err = result.data.error
         const userData = result.data.user
@@ -58,6 +49,22 @@ export default function LogIn(){
         setUser(userData);
     }
 
+    //Función que maneja el log in con Google
+    const handleGoogleLogIn = async () =>{
+        //Objeto de la información del usuairo
+        const userDetails = {
+            name: session?.user?.name, 
+            email: session?.user?.email,}
+        //request a la base de datos para registrar al usuario
+        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/logIn/google`,{
+            body: userDetails,
+        })
+        //definimos el error y el usuario
+        const err = result.data.error
+        const userData = result.data.user
+        setError(err);
+        setUser(userData);
+    }
     
     return(
         <Container>

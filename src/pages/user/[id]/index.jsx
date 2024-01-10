@@ -6,22 +6,30 @@ import { signOut } from "next-auth/react";
 import _Navbar from "../../components/_Navbar";
 
 function index(){
+    //objeto router que se encarga de la navegación
     const router = useRouter()
-
+    //obtenemos el id del usuario haciendo un query de la ruta y leyendo el id
     const id = router.query.id;
-
+    //Hook que captura la información de la sesión
     const [session, setSession] = useState({
         data: {
             type: 'user',
             user_id: null
         }
     })
-
+    //Hook que captura la información del usuario
+    const [usuario, setUsuario] = useState({
+        user_id: null,
+    })
+    //Función que obtiene la información de la sesión
     const sessionHandler = async () => {
         
         const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+        //Redirige al usuario si la información de la sesión no coincide con la página
         if(session.data !== null){
             if(session.data.type != 'user'){
+                router.push('/')
+            }else if(session.data.user_id != id){
                 router.push('/')
             }else{
                 setSession(session)
@@ -32,15 +40,7 @@ function index(){
         }
         
     }
-    const [usuario, setUsuario] = useState({
-        user_id: null,
-        name: null,
-        email: null,
-        picturegoogle: '',
-        google: null,
-        password: null,
-        pictureuser: null,
-    })
+    
     
     //hooks para manejar el cambio de imagen
     const [show, setShow] = useState(false);
@@ -63,7 +63,6 @@ function index(){
             const formData = new FormData();
             formData.append('image', selectedFile);
             const {data} = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/image/${id}` , formData);
-            console.log(data);
 
         }catch(error){
             console.log(error.response?.data);
@@ -78,32 +77,27 @@ function index(){
     //función para obtener el usuario a partir del id
     const getUser = async () =>{
         const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)  
-        setUsuario(result.data.user)
-        
+        setUsuario(result.data.user)  
     }
-
-    if (session.data.user_id != null && usuario.user_id ){
-        if(session.data.user_id != usuario.user_id){
-          router.push('/')
-        }
-      }
 
     //Hook que se ejecuta al cargar la página para llamar a getUser
     useEffect(() =>{
         if(session.data.user_id == null){
             sessionHandler()
         }
-        if(id){
+        if(id != undefined && usuario.user_id == null){
             getUser()
         }
         
     },[id])
+
     const handleDestroySession = async () =>{
         const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/logout`)
     }
 
     //Función para log out
     const logOut = async () =>{
+        //destruimos la sesión y redirigimos al usuairo a la página raíz
         handleDestroySession()
         signOut({callbackUrl: 'http://localhost:3000'})   
     }

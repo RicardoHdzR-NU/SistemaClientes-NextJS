@@ -4,15 +4,18 @@ import axios from 'axios';
 import { useRouter } from 'next/router'
 
 export default function Home() {
-  const router = useRouter()
+    //objeto router que se encarga de la navegación
+    const router = useRouter()
   
-
+    //Hook que se ejecuta al cargar la página, ejecuta el manejador de las sesiones
     useEffect(() =>{
         sessionHandler();
     },[])
 
     const sessionHandler = async () => {
+        //Obtenemos la sesión
         const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+        //Si existe información de sesión la lee y decide a donde mandar al usuario/admin
         if(session.data !== null){
             if(session.data.type == 'user'){
                 router.push(`/user/${session.data.user_id}`)
