@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { Container, Table } from 'react-bootstrap'
+import { Container, Table, Form } from 'react-bootstrap'
 import _Navbar from '../../../components/_Navbar1'
 import axios from 'axios'
 import { useRouter } from "next/router";
@@ -11,6 +11,7 @@ export default function index() {
   const id = router.query.id;
   //Hooks para capturar los vehiculos y el admin
   const [vehiculos, setVehiculos] = useState([])
+  const [allVehiculos, setAllVehiculos] = useState([])
   const [admin, setAdmin] = useState({
     admin_id: null,
     name: null
@@ -22,6 +23,9 @@ export default function index() {
       user_id: null
     }
   })
+
+  //Hook que captura el filtro a utilizar
+  const [query, setQuery] = useState('')
   
   //Función para manejar la sesión
   const sessionHandler = async () => {
@@ -35,7 +39,6 @@ export default function index() {
         }else{
             setSession(session)
         }
-        
     }
     else{
         router.push('/')
@@ -49,6 +52,29 @@ export default function index() {
       setVehiculos([0])
     }else{
       setVehiculos(results.data.vehiculos)
+      setAllVehiculos(results.data.vehiculos)
+    }
+  }
+
+  const filterQuery = (query) => {
+    let filterData = vehiculos;
+    if (query) {
+      filterData = vehiculos.filter(vhcl =>
+        vhcl.vehiculo_id.toString().includes(query) ||
+        vhcl.tipo_vehiculo.includes(query) ||
+        vhcl.marca.includes(query) ||
+        vhcl.modelo.includes(query) ||
+        vhcl.color.includes(query) ||
+        vhcl.placa.includes(query) ||
+        vhcl.conductor.includes(query) ||
+        vhcl.conductores[0].includes(query) ||
+        vhcl.conductores[1].includes(query) ||
+        vhcl.poliza_id.toString().includes(query) ||
+        vhcl.user_id.toString().includes(query)
+      )
+      setVehiculos(filterData)
+    } else {
+      setVehiculos(allVehiculos)
     }
   }
   //Obtenemos la información del Admin
@@ -60,22 +86,32 @@ export default function index() {
   //Hook que se ejecuta al cargar la página, obtiene la 
   //información de la sesión, el admin y los vehiculos
   useEffect(() =>{
-    if(session.data.admin_id == null){
-        sessionHandler()
-    }
     if(id != undefined && admin.admin_id == null){
       getAdmin()
+    }
+    if(session.data.admin_id == null && admin.admin_id != null){
+        sessionHandler()
     }
     if(vehiculos.length == 0){
       fetchVehiculos()
     }
   },[vehiculos, id])
 
+  useEffect(() => {
+    filterQuery(query)
+  }, [query])
+
   return (
     <Container>
       {session.data.admin_id != null &&
       <div>
       <_Navbar user={admin}/>
+      <div className='flex justify-between'>
+        <Form className='mb-3 px-2 py-2 border-rounded'>
+          <Form.Label>Filtro</Form.Label>
+          <Form.Control type='text' onChange={(e) => setQuery(e.target.value)}></Form.Control>
+        </Form>
+      </div>
       <Table bordered hover >
         <thead>
           <tr>

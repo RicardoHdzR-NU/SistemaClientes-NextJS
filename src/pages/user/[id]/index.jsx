@@ -82,13 +82,12 @@ function index(){
 
     //Hook que se ejecuta al cargar la página para llamar a getUser
     useEffect(() =>{
-        if(session.data.user_id == null){
-            sessionHandler()
-        }
         if(id != undefined && usuario.user_id == null){
             getUser()
         }
-        
+        if(session.data.user_id == null){
+            sessionHandler()
+        }
     },[id])
 
     const handleDestroySession = async () =>{

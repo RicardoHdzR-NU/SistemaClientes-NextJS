@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { Container, Table, Button, Modal, Row } from 'react-bootstrap'
+import { Container, Table, Button, Modal, Row, Form } from 'react-bootstrap'
 import _Navbar from '../../../../components/_Navbar1'
 import axios from 'axios'
 import { useRouter } from "next/router";
@@ -12,6 +12,7 @@ export default function index() {
   const id = router.query.id;
   //Hooks de los vehiculos y el admin
   const [vehiculos, setVehiculos] = useState([])
+  const [allVehiculos, setAllVehiculos] = useState([])
   const [admin, setAdmin] = useState({
     admin_id: null,
     name: null
@@ -26,6 +27,9 @@ export default function index() {
   //Hoks que ayudan a hacer el request de aprovación
   const [editConductores, setEditConductores] = useState({})
   const [conductoresError, setConductoresError] = useState({})
+
+  //Hook que captura el filtro a utilizar
+  const [query, setQuery] = useState('')
   
   //Función que obtiene los datos de la sesión
   const sessionHandler = async () => {
@@ -53,7 +57,25 @@ export default function index() {
     }else{
       await formatDates(results.data.vehiculos)
       setVehiculos(results.data.vehiculos)
+      setAllVehiculos(results.data.vehiculos)
     } 
+  }
+
+  const filterQuery = (query) => {
+    let filterData = vehiculos;
+    if (query) {
+      filterData = vehiculos.filter(vhcl =>
+        vhcl.actualizacion_id.toString().includes(query) ||
+        vhcl.conductor_principal.includes(query) ||
+        vhcl.conductor_ad1.includes(query) ||
+        vhcl.conductor_ad2.includes(query) ||
+        vhcl.vehiculo_id.toString().includes(query) ||
+        vhcl.fecha_solicitud.includes(query)
+      )
+      setVehiculos(filterData)
+    } else {
+      setVehiculos(allVehiculos)
+    }
   }
   //Obtenemos la información del admin
   const getAdmin = async () =>{
@@ -95,22 +117,32 @@ export default function index() {
 
   //Hook que se ejecuta al cargar la página, ejecuta las funcioens de sesión, admin y vehiculos
   useEffect(() =>{
-    if(session.data.admin_id == null){
-        sessionHandler()
-    }
     if(id != undefined && admin.admin_id == null){
       getAdmin()
+    }
+    if(session.data.admin_id == null && admin.admin_id != null){
+      sessionHandler()
     }
     if(vehiculos.length == 0){
       fetchVehiculos()
     }
   },[vehiculos, id])
 
+  useEffect(() => {
+    filterQuery(query)
+  }, [query])
+
   return (
     <Container>
       {session.data.admin_id != null &&
       <div>
       <_Navbar user={admin}/>
+      <div className='flex justify-between'>
+        <Form className='mb-3 px-2 py-2 border-rounded'>
+          <Form.Label>Filtro</Form.Label>
+          <Form.Control type='text' onChange={(e) => setQuery(e.target.value)}></Form.Control>
+        </Form>
+      </div>
       <Table bordered hover >
         <thead>
           <tr>

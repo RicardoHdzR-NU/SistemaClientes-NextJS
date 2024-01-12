@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { Container, Table, Row } from 'react-bootstrap'
+import { Container, Table, Row, Form } from 'react-bootstrap'
 import _Navbar1 from "../../../components/_Navbar1";
 import axios from 'axios'
 import { useRouter } from "next/router";
@@ -13,6 +13,7 @@ export default function index() {
   const id = router.query.id;
   //Hooks que captural las polizas y el admin
   const [polizas, setPolizas] = useState([])
+  const [allPolizas, setAllPolizas] = useState([])
   const [admin, setAdmin] = useState({
     admin_id: null,
     name: null
@@ -24,6 +25,9 @@ export default function index() {
       admin_id: null
     }
   })
+
+  //Hook que captura el filtro a utilizar
+  const [query, setQuery] = useState('')
 
   //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
@@ -52,6 +56,24 @@ export default function index() {
     }else{
       await formatDates(results.data.polizas)
       setPolizas(results.data.polizas)
+      setAllPolizas(results.data.polizas)
+    }
+  }
+
+  const filterQuery = (query) => {
+    let filterData = polizas;
+    if(query){
+      filterData = polizas.filter(plz => 
+        plz.poliza_id.toString().includes(query) ||
+        plz.tipo_poliza.includes(query) ||
+        plz.archivo.includes(query) ||
+        plz.fecha_inicio.includes(query) ||
+        plz.fecha_fin.includes(query) ||
+        plz.usuario.toString().includes(query)
+      )
+      setPolizas(filterData)
+    }else{
+      setPolizas(allPolizas)
     }
   }
 
@@ -73,22 +95,32 @@ export default function index() {
 
   //Hook que se ejecuta al cargar la página, ejecuta las funciones de sesión, admin y polizas 
   useEffect(() =>{
-    if(session.data.admin_id == null){
-      sessionHandler()
-    }
     if(id != undefined && admin.admin_id == null){
       getAdmin()
+    }
+    if(session.data.admin_id == null && admin.admin_id != null){
+      sessionHandler()
     }
     if(polizas.length == 0){
       fetchPolizas()
     }
   },[polizas, id])
 
+  useEffect(() =>{
+    filterQuery(query)
+  },[query])
+
   return (
     <Container>
       {session.data.admin_id != null &&
       <div>
       <_Navbar1 user={admin}/>
+      <div className='flex justify-between'>
+        <Form className='mb-3 px-2 py-2 border-rounded'>
+          <Form.Label>Filtro</Form.Label>
+          <Form.Control type='text' onChange={(e) => setQuery(e.target.value)}></Form.Control>
+        </Form>
+      </div>
       <Table bordered hover >
         <thead>
           <tr>
