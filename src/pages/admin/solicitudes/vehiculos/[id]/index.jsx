@@ -33,7 +33,7 @@ export default function index() {
   
   //Función que obtiene los datos de la sesión
   const sessionHandler = async () => {
-    const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    const session = await axios.get(`/api/session`)
     //si la información de la sesión y la página no coinciden, redirigimos a la página raíz
     if(session.data !== null){
         if(session.data.type != 'admin'){
@@ -51,7 +51,7 @@ export default function index() {
   }
   //Obtenemos la información de los vehiculos
   const fetchVehiculos = async () =>{
-    const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/solicitudes/vehiculos/`)
+    const results = await axios.get(`/api/admin/solicitudes/vehiculos/`)
     if(results.data.vehiculos.length == 0){
       setVehiculos([0])
     }else{
@@ -61,6 +61,7 @@ export default function index() {
     } 
   }
 
+  //funcionalidad de filtro de datos
   const filterQuery = (query) => {
     let filterData = vehiculos;
     if (query) {
@@ -79,7 +80,7 @@ export default function index() {
   }
   //Obtenemos la información del admin
   const getAdmin = async () =>{
-    const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)
+    const result = await axios.get(`/api/admin/${id}`)
     setAdmin(result.data.admin)
   }
 
@@ -106,12 +107,12 @@ export default function index() {
       ad1: editConductores.conductor_ad1,
       ad2: editConductores.conductor_ad2
     }
-    const result = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/vehiculo/${editConductores.vehiculo_id}`, {
+    const result = await axios.put(`/api/vehiculo/${editConductores.vehiculo_id}`, {
       body: updatedConductores
     })
     setConductoresError(result.data);
     if(!conductoresError.error){
-      const deletion = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/vehiculo/${editConductores.vehiculo_id}`)
+      const deletion = await axios.delete(`/api/vehiculo/${editConductores.vehiculo_id}`)
     }
   }
 

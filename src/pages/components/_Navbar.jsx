@@ -9,12 +9,12 @@ export default function _Navbar({user}) {
   const router = useRouter()
   //Función que destruye la sesión
   const handleDestroySession = async () =>{
-    const result = await axios.get('http://localhost:3000/api/logout')
+    const result = await axios.get('/api/logout')
   }
   //Función que maneja el log out
   const logOut = async () =>{
     handleDestroySession()
-    signOut({callbackUrl: 'http://localhost:3000'})
+    signOut({callbackUrl: '/'})
   }
 
   return (

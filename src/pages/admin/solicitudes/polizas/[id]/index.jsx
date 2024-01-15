@@ -34,7 +34,7 @@ export default function index() {
   //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
         
-    const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    const session = await axios.get(`/api/session`)
     if(session.data !== null){
         //si la información de la sesión y la de la página no coinciden lo regresa a la página raíz
         if(session.data.type != 'admin'){
@@ -53,7 +53,7 @@ export default function index() {
 
   //Obtenemos la informacipin de las polizas
   const fetchPolizas = async () =>{
-    const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/solicitudes/polizas/`)
+    const results = await axios.get(`/api/admin/solicitudes/polizas/`)
     if(results.data.polizas.length == 0){
       setPolizas([0])
     }else{
@@ -63,6 +63,7 @@ export default function index() {
     }
   }
 
+  //funcionalida de filtro de datos
   const filterQuery = (query) => {
     let filterData = polizas;
     if(query){
@@ -92,7 +93,7 @@ export default function index() {
   }
   //Obtenemos la información del admin
   const getAdmin = async () =>{
-    const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)  
+    const result = await axios.get(`/api/admin/${id}`)  
     setAdmin(result.data.admin)
   }
 
@@ -110,12 +111,12 @@ export default function index() {
       inicio: new Date(polizaEdit.fecha_inicio),
       fin: new Date(polizaEdit.fecha_fin),
     }
-    const result = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/poliza/${polizaEdit.poliza_id}`, {
+    const result = await axios.put(`/api/poliza/${polizaEdit.poliza_id}`, {
       body: polizaDetails
     })
     setPolizaError(result.data);
     if(!polizaError.error){
-      const deletion = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/poliza/${polizaEdit.poliza_id}`)
+      const deletion = await axios.delete(`/api/poliza/${polizaEdit.poliza_id}`)
     }
     
   }

@@ -26,7 +26,7 @@ function index(){
 
     //Función que obtiene los datos de la sesión
     const sessionHandler = async () => {
-        const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+        const session = await axios.get(`/api/session`)
         if(session.data !== null){
             //Si los datos de la sesión y la página no coinciden lo regresa a la página raíz
             if(session.data.type != 'admin'){
@@ -44,7 +44,7 @@ function index(){
 
     //función para obtener el usuario a partir del id
     const getAdmin = async () =>{
-        const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)  
+        const result = await axios.get(`/api/admin/${id}`)  
         setAdmin(result.data.admin)
     }
 
@@ -61,13 +61,13 @@ function index(){
 
     //Función que elimina la sesión del browser
     const handleDestroySession = async () =>{
-        const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/logout`)
+        const result = await axios.get(`/api/logout`)
     }
 
     //Función para log out
     const logOut = async () =>{
         handleDestroySession()
-        signOut({callbackUrl: 'http://localhost:3000'})   
+        signOut({callbackUrl: '/'})   
     }
 
     return(

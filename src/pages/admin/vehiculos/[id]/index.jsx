@@ -29,7 +29,7 @@ export default function index() {
   
   //Función para manejar la sesión
   const sessionHandler = async () => {
-    const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    const session = await axios.get(`/api/session`)
     //redirigimos a la pagina raiz si la pagina no coincide con la información de la sesión
     if(session.data !== null){
         if(session.data.type != 'admin'){
@@ -47,7 +47,7 @@ export default function index() {
 
   //Obtenemos los vehiculos
   const fetchVehiculos = async () =>{
-    const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/vehiculos/`)
+    const results = await axios.get(`/api/admin/vehiculos/`)
     if(results.data.vehiculos.length == 0){
       setVehiculos([0])
     }else{
@@ -56,6 +56,7 @@ export default function index() {
     }
   }
 
+  //funcionalidad de filtro de datos
   const filterQuery = (query) => {
     let filterData = vehiculos;
     if (query) {
@@ -79,7 +80,7 @@ export default function index() {
   }
   //Obtenemos la información del Admin
   const getAdmin = async () =>{
-    const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)
+    const result = await axios.get(`/api/admin/${id}`)
     setAdmin(result.data.admin)
   }
 

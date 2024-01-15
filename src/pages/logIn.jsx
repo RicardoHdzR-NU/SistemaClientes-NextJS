@@ -24,7 +24,7 @@ export default function LogIn(){
     //Hook que se ejecuta al cargar la página, si el objeto "user" cambia dirige al usuario 
     //a la pagina de usuario, y si el objeto session cambia hace el log in con Google
     useEffect(() =>{
-        
+
         if(user.user_id){
             router.push(`/user/${user.user_id}`)
         }
@@ -39,7 +39,7 @@ export default function LogIn(){
         const userDetails = {
             email: email,
             password: password,}
-        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/logIn`,{
+        const result = await axios.post(`/api/logIn`,{
             body: userDetails,
         })
         //definimos el error y el usuario
@@ -56,7 +56,7 @@ export default function LogIn(){
             name: session?.user?.name, 
             email: session?.user?.email,}
         //request a la base de datos para registrar al usuario
-        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/logIn/google`,{
+        const result = await axios.post(`/api/logIn/google`,{
             body: userDetails,
         })
         //definimos el error y el usuario

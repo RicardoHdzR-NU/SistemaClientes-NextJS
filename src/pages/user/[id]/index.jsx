@@ -24,7 +24,7 @@ function index(){
     //Función que obtiene la información de la sesión
     const sessionHandler = async () => {
         
-        const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+        const session = await axios.get(`/api/session`)
         //Redirige al usuario si la información de la sesión no coincide con la página
         if(session.data !== null){
             if(session.data.type != 'user'){
@@ -62,7 +62,7 @@ function index(){
             if(!selectedFile) return;
             const formData = new FormData();
             formData.append('image', selectedFile);
-            const {data} = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/image/${id}` , formData);
+            const {data} = await axios.put(`/api/user/image/${id}` , formData);
 
         }catch(error){
             console.log(error.response?.data);
@@ -76,7 +76,7 @@ function index(){
 
     //función para obtener el usuario a partir del id
     const getUser = async () =>{
-        const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)  
+        const result = await axios.get(`/api/user/${id}`)  
         setUsuario(result.data.user)  
     }
 
@@ -91,14 +91,14 @@ function index(){
     },[id])
 
     const handleDestroySession = async () =>{
-        const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/logout`)
+        const result = await axios.get(`/api/logout`)
     }
 
     //Función para log out
     const logOut = async () =>{
         //destruimos la sesión y redirigimos al usuairo a la página raíz
         handleDestroySession()
-        signOut({callbackUrl: 'http://localhost:3000'})   
+        signOut({callbackUrl: '/'})   
     }
 
     return(

@@ -33,7 +33,7 @@ export default function index() {
 
   //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
-    const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    const session = await axios.get(`/api/session`)
     //Si el usuario intenta acceder a una página que no coincide con la  
     //información de su sesión lo redirige a la página raíz
     if (session.data !== null) {
@@ -52,7 +52,7 @@ export default function index() {
 
   //función para obtener la información de los vehiculos
   const fetchVehiculos = async () => {
-    const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/vehiculos/${id}`)
+    const results = await axios.get(`/api/vehiculos/${id}`)
     if (results.data.vehiculos.length == 0) {
       setVehiculos([0])
     } else {
@@ -61,6 +61,7 @@ export default function index() {
     }
   }
 
+  //funcionalidad de filtro de datos
   const filterQuery = (query) => {
     let filterData = vehiculos;
     if (query) {
@@ -84,7 +85,7 @@ export default function index() {
 
   //función para obtener la información del usuario
   const getUser = async () => {
-    const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)
+    const result = await axios.get(`/api/user/${id}`)
     setUsuario(result.data.user)
   }
   //Hook que se ejecuta al cargar la página, se encarga de llamar 
@@ -119,7 +120,7 @@ export default function index() {
       ad1: conductorAd1,
       ad2: conductorAd2
     }
-    const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/vehiculo/${editConductores.vehiculo_id}`, {
+    const result = await axios.post(`/api/vehiculo/${editConductores.vehiculo_id}`, {
       body: updatedConductores
     })
     setConductoresError(result.data);

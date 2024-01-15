@@ -31,7 +31,7 @@ export default function index() {
 
   //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
-    const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    const session = await axios.get(`/api/session`)
     //Si la información de la sesión y la página no coinciden lo regresa a la ruta raíz
     if(session.data !== null){
         if(session.data.type != 'admin'){
@@ -50,7 +50,7 @@ export default function index() {
 
   //Obtenemos la información de las polizas
   const fetchPolizas = async () =>{
-    const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/polizas/`)
+    const results = await axios.get(`/api/admin/polizas/`)
     if(results.data.polizas.length == 0){
       setPolizas([0])
     }else{
@@ -60,6 +60,7 @@ export default function index() {
     }
   }
 
+  //funcionalidad del filtro de datos
   const filterQuery = (query) => {
     let filterData = polizas;
     if(query){
@@ -89,7 +90,7 @@ export default function index() {
 
   //Función que obtiene la información del admin
   const getAdmin = async () =>{
-    const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/${id}`)  
+    const result = await axios.get(`/api/admin/${id}`)  
     setAdmin(result.data.admin)
   }
 

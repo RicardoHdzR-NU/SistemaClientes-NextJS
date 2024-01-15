@@ -44,7 +44,7 @@ export default function signin() {
             email: email,
             password: password,}
         //request a la base de datos para registrar al usuario
-        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/signIn`,{
+        const result = await axios.post(`/api/signIn`,{
             body: userDetails,
         })
         //definimos el error y el usuario
@@ -60,7 +60,7 @@ export default function signin() {
             name: session?.user?.name, 
             email: session?.user?.email,}
         //request a la base de datos para registrar al usuario
-        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/signIn/google`,{
+        const result = await axios.post(`/api/signIn/google`,{
             body: userDetails,
         })
         //definimos el error y el usuario

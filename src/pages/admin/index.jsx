@@ -33,7 +33,7 @@ export default function LogInAdmin(){
         const userDetails = {
             email: name,
             password: password,}
-        const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/admin/logIn`,{
+        const result = await axios.post(`/api/admin/logIn`,{
             body: userDetails,
         })
         //definimos el error y el usuario

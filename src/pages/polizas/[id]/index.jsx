@@ -34,7 +34,7 @@ export default function index() {
 
   //Función que obtiene la información de la sesión
   const sessionHandler = async () => {
-    const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+    const session = await axios.get(`/api/session`)
     //redirigimos al usuario a la página raíz si no coincide 
     //la información de la sesión con la página
     if(session.data !== null){
@@ -53,7 +53,7 @@ export default function index() {
 
   //Función para obtener las polizas
   const fetchPolizas = async () =>{
-    const results = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/polizas/${id}`)
+    const results = await axios.get(`/api/polizas/${id}`)
     if(results.data.polizas.length == 0){
       setPolizas([0])
     }else{
@@ -76,10 +76,11 @@ export default function index() {
 
   //Función para obtener el usuario
   const getUser = async () =>{
-    const result = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`)
+    const result = await axios.get(`/api/user/${id}`)
     setUsuario(result.data.user)
   }
 
+  //funcionalidad del filtro de datos
   const filterQuery = (query) => {
     let filterData = polizas;
     if(query){
@@ -129,7 +130,7 @@ export default function index() {
       inicio: new Date(nuevoInicio),
       fin: new Date(nuevoFin),
     }
-    const result = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/poliza/${polizaEdit.poliza_id}`, {
+    const result = await axios.post(`/api/poliza/${polizaEdit.poliza_id}`, {
       body: polizaDetails
     })
     setPolizaError(result.data);

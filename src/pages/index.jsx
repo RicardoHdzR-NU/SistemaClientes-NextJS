@@ -14,7 +14,7 @@ export default function Home() {
 
     const sessionHandler = async () => {
         //Obtenemos la sesión
-        const session = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/session`)
+        const session = await axios.get(`/api/session`)
         //Si existe información de sesión la lee y decide a donde mandar al usuario/admin
         if(session.data !== null){
             if(session.data.type == 'user'){
